@@ -1,0 +1,7 @@
+archive/
+
+*.json
+_*.py
+*.txt
+*.7z
+*.zip

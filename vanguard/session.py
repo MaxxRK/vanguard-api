@@ -115,7 +115,7 @@ class VanguardSession:
         self.playwright.stop()
         if self.debug:
             self.context.tracing.stop(
-                path=f"vanguard_trace{self.title if self.title is not None else ""}.zip"
+                path=f'vanguard_trace{self.title if self.title is not None else ""}.zip'
             )
     
     def go_url(self, url):

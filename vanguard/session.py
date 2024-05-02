@@ -124,7 +124,7 @@ class VanguardSession:
             self.page.goto(url)
         except Exception as e:
             if 'NS_BINDING_ABORTED' not in str(e):
-                    raise e 
+                raise e
 
     def login(self, username, password, last_four):
         """

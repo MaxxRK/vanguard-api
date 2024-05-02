@@ -124,7 +124,10 @@ class AllAccount:
             self.as_of_time = datetime.strftime(
                 datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ"
             )
-            self.session.page.locator('//span[contains(text(), "Expand all accounts")]').click()
+            self.session.page.wait_for_selector(
+                '//span[contains(text(), "Expand all accounts")]',
+                timeout=60000
+                ).click()
             total_element = self.session.page.wait_for_selector('//p[@class="c11n-text-xl-headline accordion-headline"]')
             self.total_value = float(total_element.inner_text().split()[-1].replace(",","").replace("$",""))
             self.session.page.wait_for_selector("#overflow-override")

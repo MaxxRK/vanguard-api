@@ -8,7 +8,7 @@ from playwright_stealth import stealth_sync
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 
-from .urls import login_page, landing_page
+from .urls import landing_page
 
 class VanguardSession:
     """
@@ -19,9 +19,12 @@ class VanguardSession:
     Attributes:
         title (str): Denotes the name of the profile and if populated will make the session persistent.
         headless (bool): Whether the WebDriver should run in headless mode.
-        docker (bool): Whether the session is running in a Docker container.
         profile_path (str): The path to the user profile directory for the WebDriver.
-        driver (selenium.webdriver.Chrome): The WebDriver instance used to interact with the Vanguard website.
+        debug (bool): Whether to take a playwright trace.
+        password (str): The user's password.
+        context (BrowserContext): The browser context used to launch the browser.
+        page (Page): The page instance used to interact with the browser.
+        playwright (Playwright): The Playwright instance used to launch the browser.
 
     Methods:
         get_browser(): Initializes and returns a WebDriver with the necessary options.
@@ -31,7 +34,7 @@ class VanguardSession:
         close_browser(): Closes the browser.
     """
 
-    def __init__(self, headless=True, title=None, profile_path="."):
+    def __init__(self, title=None, headless=True, profile_path=".", debug=False):
         """
         Initializes a new instance of the VanguardSession class.
 
@@ -41,43 +44,16 @@ class VanguardSession:
             docker (bool, optional): Whether the session is running in a Docker container. Defaults to False.
             profile_path (str, optional): The path to the user profile directory for the WebDriver. Defaults to None.
         """
-        self.headless: bool = headless
         self.title: str = title
+        self.headless: bool = headless
         self.profile_path: str = profile_path
+        self.debug: bool = debug
         self.password: str = ""
         self.context = None
         self.page = None
         self.playwright = sync_playwright().start()
         self.get_browser()
 
-    def __enter__(self):
-        """
-        Enter the runtime context related to this object.
-
-        The with statement will bind this method’s return value to the target(s) specified in the as clause of the statement.
-
-        Returns:
-            self: Returns the instance of the class.
-        """
-        return self
-
-    def __exit__(self, exc_type, exc_value, tb):
-        """
-        Exit the runtime context related to this object.
-
-        The parameters describe the exception that caused the context to be exited.
-
-        Args:
-            exc_type (Type[BaseException]): The type of the exception.
-            exc_value (BaseException): The instance of the exception.
-            traceback (TracebackType): A traceback object encapsulating the call stack at the point where the exception was raised.
-
-        If the context was exited without an exception, all three arguments will be None.
-        """
-        if exc_type is not None:
-            print("An error occurred in the context manager:")
-            traceback.print_exception(exc_type, exc_value, tb)
-        self.close_browser()
 
     def get_browser(self):
         """
@@ -116,6 +92,8 @@ class VanguardSession:
         )
         self.page = self.context.new_page()
         stealth_sync(self.page)
+        if self.debug:
+            self.context.tracing.start(name="vanguard_trace", screenshots=True, snapshots=True)
 
     def save_storage_state(self):
         """
@@ -135,6 +113,10 @@ class VanguardSession:
         self.save_storage_state()
         self.browser.close()
         self.playwright.stop()
+        if self.debug:
+            self.context.tracing.stop(
+                path=f"vanguard_trace{self.title if self.title is not None else ""}.zip"
+            )
     
     def go_url(self, url):
         """Navigates to the specified URL."""

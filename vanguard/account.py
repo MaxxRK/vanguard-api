@@ -126,7 +126,7 @@ class AllAccount:
             )
             self.session.page.wait_for_selector(
                 '//span[contains(text(), "Expand all accounts")]',
-                timeout=60000
+                timeout=120000
                 ).click()
             total_element = self.session.page.wait_for_selector('//p[@class="c11n-text-xl-headline accordion-headline"]')
             self.total_value = float(total_element.inner_text().split()[-1].replace(",","").replace("$",""))

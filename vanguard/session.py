@@ -109,14 +109,14 @@ class VanguardSession:
 
     def close_browser(self):
         """Closes the browser."""
-        self.save_storage_state()
-        self.browser.close()
-        self.playwright.stop()
         if self.debug:
             self.context.tracing.stop(
                 path=f'vanguard_trace{self.title if self.title is not None else ""}.zip'
             )
-    
+        self.save_storage_state()
+        self.browser.close()
+        self.playwright.stop()
+        
     def go_url(self, url):
         """Navigates to the specified URL."""
         try:
@@ -141,8 +141,6 @@ class VanguardSession:
             Exception: If there is an error during the login process in step one.
         """
         try:
-            #self.context.tracing.start(name="vanguard_trace", screenshots=True, snapshots=True)
-            #self.context.tracing.stop(path="vanguard_trace.zip")
             self.password = password
             self.go_url(landing_page())
             try:

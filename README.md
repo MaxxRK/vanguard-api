@@ -21,7 +21,7 @@ playwright install
 ```
 If you would like some more information on this, you can find it [here](https://playwright.dev/python/docs/intro).
 
-## Quikstart
+## Quickstart
 Checkout `test.py` for a quickstart example it will: 
 - Login and print account info.
 - Print out Holdings.

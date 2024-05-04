@@ -1,4 +1,4 @@
-# chaseinvest-api
+# vanguard-api
  A reverse-engineered python API to interact with the Vanguard Trading platform.
 
  This is not an official api! This api's functionality may change at any time.

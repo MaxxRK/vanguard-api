@@ -40,7 +40,7 @@ Checkout `test.py` for a quickstart example it will:
 
 ## TO DO
  - [ ] Get Quotes
- - [ ] Place Market Orders
+ - [ ] Place Limit Orders
  - [ ] Get Order Status
  - [ ] Cancel placed orders
  - [ ] Options

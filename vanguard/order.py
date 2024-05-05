@@ -299,26 +299,31 @@ class Order:
             ] = "No order confirmation page found. Order Failed."
             return order_messages
 
-    def get_order_statuses(self, account_id):
-        """
-        Retrieves the statuses of all recent orders placed.
 
-        This method navigates to the order status page and scrapes the status of each order.
-        It returns a list of dictionaries, where each dictionary represents an order and contains
-        the order number and status.
+    def get_quote(self, symbol):
+        """
+        Get a quote for a stock.
+
+        Args:
+            symbol (str): The ticker symbol of the stock.
 
         Returns:
-            list[dict]: A list of dictionaries, where each dictionary contains 'order_number' and 'status' keys.
-
-        Raises:
-            TimeoutException: If the order status page fails to load within the specified timeout.
-            NoSuchElementException: If an expected element on the order status page cannot be found.
+            str: The price of the stock.
         """
-        try:
-            with self.session.page.expect_request(order_info()) as first:
-                self.session.go_url(order_status(account_id))
-                first_request = first.value
-                body = first_request.response().json()
-            return body
-        except PlaywrightTimeoutError:
-            return None
+        self.session.go_url(order_page())
+        quote_box = self.session.page.wait_for_selector("//input[@placeholder='Get Quote']")
+        quote_box.click()
+        quote_box.fill("")
+        quote_box.fill(symbol)
+        self.session.page.press(
+            "//input[@placeholder='Get Quote']",
+            "Enter",
+        )
+        for _ in range(3):
+            quote_price = self.session.page.wait_for_selector("(//div[@data-testid='txt-quote-value'])[2]", timeout=10000).text_content()
+            sleep(1)
+            if quote_price != "$—":
+                quote_price = float(quote_price.replace("$", "").replace(",", ""))
+            else:
+                quote_price = None
+        return quote_price

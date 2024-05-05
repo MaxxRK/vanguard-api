@@ -38,10 +38,11 @@ for account in account_info.account_numbers:
     try:
         messages = order.place_order(account, 
                                     1, 
-                                    PriceType.MARKET, 
+                                    PriceType.LIMIT, 
                                     'INTC', 
                                     Duration.DAY, 
                                     OrderSide.BUY,
+                                    limit_price=price,
                                     after_hours=True,
                                     dry_run=True)
         if messages["ORDER INVALID"] == "" or messages["ORDER CONFIRMATION"] != "":

@@ -37,10 +37,10 @@ Checkout `test.py` for a quickstart example it will:
  - [x] Get Account Data
  - [x] Place Market Orders
  - [x] Get Currently Held Positions
+ - [x] Get Quotes
+ - [x] Place Limit Orders
 
 ## TO DO
- - [ ] Get Quotes
- - [ ] Place Limit Orders
  - [ ] Get Order Status
  - [ ] Cancel placed orders
  - [ ] Options

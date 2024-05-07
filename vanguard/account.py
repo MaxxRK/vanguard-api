@@ -86,13 +86,19 @@ class AllAccount:
                 for k, price in enumerate(stock_price_elements):
                     if k == 0:
                         price_text = price.inner_text()
-                        stock_prices.append(float(price_text.replace("$", "").replace(",", "").strip()))
+                        try:
+                            stock_prices.append(float(price_text.replace("$", "").replace(",", "").strip()))
+                        except ValueError:
+                            stock_prices.append(0.00)
                     elif k == 1:
                         dollar_changes.append(price.inner_text())
                     elif k == 2:
                         percent_changes.append(price.inner_text())
                     elif k == 3:
-                        quantities.append(float(price.inner_text()))
+                        try:
+                            quantities.append(float(price.inner_text()))
+                        except ValueError:
+                            quantities.append(0.00)
             if i == len(table_rows) - 1:
                 for (stock_symbol, stock_description, stock_price, dollar_change,
                                     percent_change, quantity) in zip_longest(stock_symbols, stock_descriptions,

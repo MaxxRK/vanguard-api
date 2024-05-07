@@ -25,7 +25,7 @@ If you would like some more information on this, you can find it [here](https://
 Checkout `test.py` for a quickstart example it will: 
 - Login and print account info.
 - Print out Holdings.
-- Place a market order for 'INTC' on the first account in the `account_numbers` list
+- Place a dry run market order for 'INTC' on the first account in the `account_numbers` list
 - Print out the order confirmation
 
 

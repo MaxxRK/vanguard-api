@@ -1,4 +1,6 @@
 archive/
+dist/
+vanguard_api.egg-info/
 
 *.json
 _*.py

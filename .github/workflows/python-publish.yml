@@ -39,8 +39,5 @@ jobs:
       - name: Build package
         run: python setup.py sdist bdist_wheel
 
-      - name: List dist contents
-        run: ls dist/
-
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

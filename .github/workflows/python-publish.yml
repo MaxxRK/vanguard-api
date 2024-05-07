@@ -6,11 +6,10 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Upload Python Package to PyPI when a Release is Created
-
+name: Upload Python Package
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   pypi-publish:

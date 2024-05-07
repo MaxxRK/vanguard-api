@@ -45,7 +45,13 @@ for account in account_info.account_numbers:
                                     limit_price=price,
                                     after_hours=True,
                                     dry_run=True)
-        if messages["ORDER INVALID"] == "" or messages["ORDER CONFIRMATION"] != "":
+        
+        if (
+            messages["ORDER INVALID"] == "" 
+            or messages["ORDER INVALID"] == "No invalid order message found." 
+            or messages["ORDER CONFIRMATION"] != ""
+        ):
+            print(f'Order preview: {messages["ORDER PREVIEW"]}')
             print(f'Order confirmation: {messages["ORDER CONFIRMATION"]}')
         else:
             print(f'Order Invalid: {messages["ORDER INVALID"]}')

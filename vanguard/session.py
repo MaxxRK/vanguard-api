@@ -143,15 +143,13 @@ class VanguardSession:
         try:
             self.password = password
             self.go_url(landing_page())
-            try:
-                self.page.wait_for_url(
-                        landing_page(),
-                        wait_until="load",
-                        timeout=8000
-                    )
-                return False
-            except PlaywrightTimeoutError:
-                pass
+            for i in range(8):
+                if self.page.url == landing_page():
+                    sleep(1)
+                elif i == 7 and self.page.url == landing_page():
+                    return False
+                else:
+                    break
             self.page.wait_for_selector("#username-password-submit-btn-1", timeout=30000)
             username_box = self.page.query_selector("#USER")
             username_box.type(username, delay=random.randint(50, 500))

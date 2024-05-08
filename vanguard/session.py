@@ -143,13 +143,15 @@ class VanguardSession:
         try:
             self.password = password
             self.go_url(landing_page())
-            for i in range(8):
-                if self.page.url == landing_page():
-                    sleep(1)
-                elif i == 7 and self.page.url == landing_page():
-                    return False
-                else:
+            for _ in range(30):
+                try:
+                    self.page.wait_for_selector("#username-password-submit-btn-1", timeout=1000)
+                except PlaywrightTimeoutError:
                     break
+                try:
+                    self.page.wait_for_selector("body > vg-vgn-nav > div:nth-child(1) > greetings-widget", timeout=1000)
+                except PlaywrightTimeoutError:
+                    return False
             self.page.wait_for_selector("#username-password-submit-btn-1", timeout=30000)
             username_box = self.page.query_selector("#USER")
             username_box.type(username, delay=random.randint(50, 500))

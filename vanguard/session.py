@@ -146,7 +146,7 @@ class VanguardSession:
             try:
                 self.page.wait_for_url(
                         landing_page(),
-                        wait_until="domcontentloaded",
+                        wait_until="load",
                         timeout=8000
                     )
                 return False

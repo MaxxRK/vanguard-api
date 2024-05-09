@@ -111,7 +111,7 @@ class VanguardSession:
         """Closes the browser."""
         if self.debug:
             self.context.tracing.stop(
-                path=f'vanguard_trace{self.title if self.title is not None else ""}.zip'
+                path=f'./vanguard_trace{self.title if self.title is not None else ""}.zip'
             )
         self.save_storage_state()
         self.browser.close()

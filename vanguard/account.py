@@ -26,14 +26,14 @@ class AllAccount:
         get_holdings(): Retrieves and sets the holdings information of the account.
     """
 
-    def __init__(self, VanguardSession: VanguardSession):
+    def __init__(self, vg_session: VanguardSession):
         """
         Initializes a SymbolHoldings object with a given VanguardSession.
 
         Args:
-        VanguardSession (VanguardSession): The session associated with the accounts.
+        vg_session (VanguardSession): The session associated with the accounts.
         """
-        self.session = VanguardSession
+        self.session = vg_session
         self.as_of_time: datetime = None
         self.account_totals: dict = {}
         self.total_value = None

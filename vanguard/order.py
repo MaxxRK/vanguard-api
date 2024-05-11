@@ -98,7 +98,7 @@ class Order:
             "ORDER CONFIRMATION": "",
         }
         self.session.go_url(order_page())
-            
+
         self.session.page.wait_for_selector(
             "//div[text()=' Select Account ']", timeout=20000
         ).click()
@@ -148,7 +148,7 @@ class Order:
         )
         quantity_box.fill("")
         quantity_box.type(str(quantity))
-        
+
         if price_type == "MARKET":
             self.session.page.wait_for_selector("//label[text()='Market']").click()
         elif price_type == "LIMIT":
@@ -175,7 +175,7 @@ class Order:
                 return order_messages
             else:
                 self.session.page.wait_for_selector("//label[text()='Stop Limit']").click()
-        
+
         if price_type in ["LIMIT", "STOP_LIMIT"]:
             self.session.page.fill(
                 "#limitPrice", str(limit_price)
@@ -214,7 +214,7 @@ class Order:
                 ).click()
             except PlaywrightTimeoutError:
                 pass
-            
+
         try:
             warning = self.session.page.wait_for_selector(
                "body > twe-root > main > twe-trade > form > div > div.row > div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail > tds-card > div > tds-card-body > div:nth-child(3) > div > tds-card > div > tds-card-body",

@@ -19,7 +19,7 @@ if logged_in:
     session.login_two(code)
 else:
     print("Vanguard logged in without 2fa!")
-    
+
 account_info = AllAccount(session)
 account_info.get_holdings()
 

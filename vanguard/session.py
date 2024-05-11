@@ -116,7 +116,7 @@ class VanguardSession:
         self.save_storage_state()
         self.browser.close()
         self.playwright.stop()
-        
+
     def go_url(self, url):
         """Navigates to the specified URL."""
         try:
@@ -226,4 +226,3 @@ class VanguardSession:
             traceback.print_exc()
             print(f"Error logging into Chase: {e}")
             return False
-    

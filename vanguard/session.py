@@ -4,11 +4,12 @@ import random
 import traceback
 from time import sleep
 
-from playwright_stealth import stealth_sync
-from playwright.sync_api import sync_playwright
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import sync_playwright
+from playwright_stealth import stealth_sync
 
 from .urls import landing_page
+
 
 class VanguardSession:
     """
@@ -54,7 +55,6 @@ class VanguardSession:
         self.playwright = sync_playwright().start()
         self.get_browser()
 
-
     def get_browser(self):
         """
         Initializes and returns a browser instance.
@@ -92,7 +92,9 @@ class VanguardSession:
         self.page = self.context.new_page()
         stealth_sync(self.page)
         if self.debug:
-            self.context.tracing.start(name="vanguard_trace", screenshots=True, snapshots=True)
+            self.context.tracing.start(
+                name="vanguard_trace", screenshots=True, snapshots=True
+            )
 
     def save_storage_state(self):
         """
@@ -122,7 +124,7 @@ class VanguardSession:
         try:
             self.page.goto(url)
         except Exception as e:
-            if 'NS_BINDING_ABORTED' not in str(e):
+            if "NS_BINDING_ABORTED" not in str(e):
                 raise e
 
     def login(self, username, password, last_four):
@@ -144,7 +146,9 @@ class VanguardSession:
             self.password = password
             self.go_url(landing_page())
             try:
-                self.page.wait_for_selector("#username-password-submit-btn-1", timeout=30000)
+                self.page.wait_for_selector(
+                    "#username-password-submit-btn-1", timeout=30000
+                )
             except PlaywrightTimeoutError:
                 if self.page.url == landing_page():
                     return False
@@ -159,8 +163,7 @@ class VanguardSession:
             self.page.query_selector("#username-password-submit-btn-1").click()
             try:
                 self.page.wait_for_selector(
-                    "button.col-md:nth-child(2) > div:nth-child(1)",
-                    timeout=10000
+                    "button.col-md:nth-child(2) > div:nth-child(1)", timeout=10000
                 ).click()
             except PlaywrightTimeoutError:
                 pass
@@ -168,7 +171,9 @@ class VanguardSession:
                 self.page.wait_for_selector(
                     "xpath=//div[contains(text(), '***-***-')]", timeout=10000
                 )
-                otp_cards = self.page.query_selector_all("xpath=//div[contains(text(), '***-***-')]")
+                otp_cards = self.page.query_selector_all(
+                    "xpath=//div[contains(text(), '***-***-')]"
+                )
                 for otp_card in otp_cards:
                     if otp_card.inner_text() == f"***-***-{last_four}":
                         otp_card.click()
@@ -180,7 +185,7 @@ class VanguardSession:
             except PlaywrightTimeoutError:
                 if self.title is not None:
                     self.save_storage_state()
-                return False         
+                return False
         except Exception as e:
             self.close_browser()
             traceback.print_exc()
@@ -206,15 +211,12 @@ class VanguardSession:
                 "c11n-radio.c11n-radio:nth-child(2) > label:nth-child(2)"
             ).click()
             self.page.wait_for_selector(
-                "#security-code-submit-btn",
-                timeout=10000
+                "#security-code-submit-btn", timeout=10000
             ).click()
             sleep(5)
             try:
                 self.page.wait_for_url(
-                    landing_page(),
-                    wait_until="domcontentloaded",
-                    timeout=10000
+                    landing_page(), wait_until="domcontentloaded", timeout=10000
                 )
                 if self.title is not None:
                     self.save_storage_state()

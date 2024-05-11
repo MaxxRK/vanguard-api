@@ -113,8 +113,8 @@ class AllAccount:
                         "quantity": quantity
                     })
                     self.accounts_positions[account_id][type] = stocks
-                
-    
+
+
 
     def get_holdings(self):
         """

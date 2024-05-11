@@ -172,9 +172,7 @@ class Order:
                     "Stop orders must be DAY or GOOD TILL CANCELLED."
                 )
                 return order_messages
-            self.session.page.wait_for_selector(
-                "//label[text()='Stop Limit']"
-            ).click()
+            self.session.page.wait_for_selector("//label[text()='Stop Limit']").click()
 
         if price_type in ["LIMIT", "STOP_LIMIT"]:
             self.session.page.fill("#limitPrice", str(limit_price))

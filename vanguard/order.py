@@ -158,26 +158,23 @@ class Order:
                     "Limit orders must be DAY or GOOD TILL CANCELLED."
                 )
                 return order_messages
-            else:
-                self.session.page.wait_for_selector("//label[text()='Limit']").click()
+            self.session.page.wait_for_selector("//label[text()='Limit']").click()
         elif price_type == "STOP":
             if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
                 order_messages["ORDER INVALID"] = (
                     "Stop orders must be DAY or GOOD TILL CANCELLED."
                 )
                 return order_messages
-            else:
-                self.session.page.wait_for_selector("//label[text()='Stop']").click()
+            self.session.page.wait_for_selector("//label[text()='Stop']").click()
         elif price_type == "STOP_LIMIT":
             if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
                 order_messages["ORDER INVALID"] = (
                     "Stop orders must be DAY or GOOD TILL CANCELLED."
                 )
                 return order_messages
-            else:
-                self.session.page.wait_for_selector(
-                    "//label[text()='Stop Limit']"
-                ).click()
+            self.session.page.wait_for_selector(
+                "//label[text()='Stop Limit']"
+            ).click()
 
         if price_type in ["LIMIT", "STOP_LIMIT"]:
             self.session.page.fill("#limitPrice", str(limit_price))

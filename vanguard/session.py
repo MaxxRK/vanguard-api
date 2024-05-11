@@ -152,8 +152,7 @@ class VanguardSession:
             except PlaywrightTimeoutError:
                 if self.page.url == landing_page():
                     return False
-                else:
-                    raise Exception("Could not find submit button on login page.")
+                raise Exception("Could not find submit button on login page.")
             username_box = self.page.query_selector("#USER")
             username_box.type(username, delay=random.randint(50, 500))
             username_box.press("Tab")

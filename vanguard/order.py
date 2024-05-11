@@ -1,5 +1,4 @@
 import re
-
 from enum import Enum
 from time import sleep
 
@@ -98,7 +97,7 @@ class Order:
             "ORDER CONFIRMATION": "",
         }
         self.session.go_url(order_page())
-            
+
         self.session.page.wait_for_selector(
             "//div[text()=' Select Account ']", timeout=20000
         ).click()
@@ -111,7 +110,9 @@ class Order:
             if account_id in account.text_content():
                 account.click()
                 break
-        quote_box = self.session.page.wait_for_selector("//input[@placeholder='Get Quote']")
+        quote_box = self.session.page.wait_for_selector(
+            "//input[@placeholder='Get Quote']"
+        )
         quote_box.click()
         quote_box.fill("")
         quote_box.fill(symbol)
@@ -120,16 +121,16 @@ class Order:
             "Enter",
         )
         for _ in range(3):
-            quote_price = self.session.page.wait_for_selector("(//div[@data-testid='txt-quote-value'])[2]", timeout=10000).text_content()
+            quote_price = self.session.page.wait_for_selector(
+                "(//div[@data-testid='txt-quote-value'])[2]", timeout=10000
+            ).text_content()
             sleep(1)
             if quote_price != "$—":
                 break
         if quote_price != "$—":
             order_messages["ORDER INVALID"] = "Order page loaded correctly."
         else:
-            order_messages[
-                "ORDER INVALID"
-            ] = "Quote did not load correctly."
+            order_messages["ORDER INVALID"] = "Quote did not load correctly."
 
         if order_messages["ORDER INVALID"] != "Order page loaded correctly.":
             return order_messages
@@ -148,45 +149,45 @@ class Order:
         )
         quantity_box.fill("")
         quantity_box.type(str(quantity))
-        
+
         if price_type == "MARKET":
             self.session.page.wait_for_selector("//label[text()='Market']").click()
         elif price_type == "LIMIT":
             if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
-                order_messages[
-                    "ORDER INVALID"
-                ] = "Limit orders must be DAY or GOOD TILL CANCELLED."
+                order_messages["ORDER INVALID"] = (
+                    "Limit orders must be DAY or GOOD TILL CANCELLED."
+                )
                 return order_messages
             else:
                 self.session.page.wait_for_selector("//label[text()='Limit']").click()
         elif price_type == "STOP":
             if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
-                order_messages[
-                    "ORDER INVALID"
-                ] = "Stop orders must be DAY or GOOD TILL CANCELLED."
+                order_messages["ORDER INVALID"] = (
+                    "Stop orders must be DAY or GOOD TILL CANCELLED."
+                )
                 return order_messages
             else:
                 self.session.page.wait_for_selector("//label[text()='Stop']").click()
         elif price_type == "STOP_LIMIT":
             if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
-                order_messages[
-                    "ORDER INVALID"
-                ] = "Stop orders must be DAY or GOOD TILL CANCELLED."
+                order_messages["ORDER INVALID"] = (
+                    "Stop orders must be DAY or GOOD TILL CANCELLED."
+                )
                 return order_messages
             else:
-                self.session.page.wait_for_selector("//label[text()='Stop Limit']").click()
-        
+                self.session.page.wait_for_selector(
+                    "//label[text()='Stop Limit']"
+                ).click()
+
         if price_type in ["LIMIT", "STOP_LIMIT"]:
-            self.session.page.fill(
-                "#limitPrice", str(limit_price)
-            )
+            self.session.page.fill("#limitPrice", str(limit_price))
         if price_type in ["STOP", "STOP_LIMIT"]:
             self.session.page.fill("#stopPrice", str(stop_price))
         try:
             if duration == "DAY":
                 self.session.page.click("xpath=//label[text()='Day']")
             elif duration == "GOOD_TILL_CANCELLED":
-                self.session.page.click("xpath=//label[text()='60-day (GTC)']")  
+                self.session.page.click("xpath=//label[text()='60-day (GTC)']")
             if order_type == "SELL":
                 self.session.page.wait_for_selector(
                     "body > twe-root > main > twe-trade > form > div > div.row > div:nth-child(1) > twe-cost-basis-control > twe-cost-basis-modal > tds-modal > div.modal.visible > div > div.modal__content",
@@ -195,13 +196,13 @@ class Order:
                 self.session.page.wait_for_selector(
                     "//button[text()=' Continue ']",
                     timeout=10000,
-                ).click()    
+                ).click()
         except PlaywrightTimeoutError:
             pass
         try:
             self.session.page.wait_for_selector(
                 "body > twe-root > main > twe-trade > form > div > div.row > div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail > tds-card > div > tds-card-body > div.twe-flex-button-wrap > button:nth-child(2)",
-                timeout=5000
+                timeout=5000,
             ).click()
         except PlaywrightTimeoutError:
             pass
@@ -214,10 +215,10 @@ class Order:
                 ).click()
             except PlaywrightTimeoutError:
                 pass
-            
+
         try:
             warning = self.session.page.wait_for_selector(
-               "body > twe-root > main > twe-trade > form > div > div.row > div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail > tds-card > div > tds-card-body > div:nth-child(3) > div > tds-card > div > tds-card-body",
+                "body > twe-root > main > twe-trade > form > div > div.row > div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail > tds-card > div > tds-card-body > div:nth-child(3) > div > tds-card > div > tds-card-body",
                 timeout=5000,
             )
             warning_header_selector = warning.query_selector("p")
@@ -234,28 +235,30 @@ class Order:
         try:
             order_preview = self.session.page.wait_for_selector(
                 "body > twe-root > main > twe-preview > div > div > div.col-lg-7 > tds-card > div > tds-card-body > twe-order-details",
-                timeout=5000
+                timeout=5000,
             )
             order_preview_text = order_preview.text_content()
             preview_parts = re.split(
-                r'(Account|Transaction|Shares|Security|Order type|Duration|Commission|Estimated amount|\*)',
-                order_preview_text
+                r"(Account|Transaction|Shares|Security|Order type|Duration|Commission|Estimated amount|\*)",
+                order_preview_text,
             )
             order_preview = {
-                'Account': preview_parts[2],
-                'Transaction': preview_parts[4],
-                'Shares': preview_parts[6],
-                'Security': preview_parts[8],
-                'Order type': preview_parts[10],
-                'Duration': preview_parts[12],
-                'Commission': preview_parts[14],
-                'Estimated amount': preview_parts[18],
-                'Note': preview_parts[20],
+                "Account": preview_parts[2],
+                "Transaction": preview_parts[4],
+                "Shares": preview_parts[6],
+                "Security": preview_parts[8],
+                "Order type": preview_parts[10],
+                "Duration": preview_parts[12],
+                "Commission": preview_parts[14],
+                "Estimated amount": preview_parts[18],
+                "Note": preview_parts[20],
             }
             order_messages["ORDER PREVIEW"] = order_preview
             if not dry_run:
                 try:
-                    self.session.page.click("//button[text()=' Submit Order ']", timeout=10000)
+                    self.session.page.click(
+                        "//button[text()=' Submit Order ']", timeout=10000
+                    )
                 except PlaywrightTimeoutError:
                     raise Exception("No place order button found cannot continue.")
             else:
@@ -265,19 +268,24 @@ class Order:
 
         try:
             order_handle_one = self.session.page.wait_for_selector(
-                "body > twe-root > main > twe-confirm > div > div > div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 > h2", timeout=5000
+                "body > twe-root > main > twe-confirm > div > div > div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 > h2",
+                timeout=5000,
             )
             order_handle_two = self.session.page.wait_for_selector(
-                "body > twe-root > main > twe-confirm > div > div > div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 > div.page-heading.tds-mb-7", timeout=5000
+                "body > twe-root > main > twe-confirm > div > div > div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 > div.page-heading.tds-mb-7",
+                timeout=5000,
             )
             order_number_text = order_handle_one.text_content()
             order_match = re.search(r"Received order #(\d+)", order_number_text)
             if order_match:
                 order_number = order_match.group(1)
             else:
-                order_number = "No order number found."    
+                order_number = "No order number found."
             order_date_text = order_handle_two.text_content()
-            date_match = re.search(r"Submitted on (\d{2}/\d{2}/\d{4}) at (\d{1,2}:\d{2} [AP]\.M\. ET)", order_date_text)
+            date_match = re.search(
+                r"Submitted on (\d{2}/\d{2}/\d{4}) at (\d{1,2}:\d{2} [AP]\.M\. ET)",
+                order_date_text,
+            )
             if date_match:
                 date_str = date_match.group(1)
                 time_str = date_match.group(2).replace(".", "")
@@ -289,16 +297,15 @@ class Order:
             order_confirm = {
                 "Order Number": order_number,
                 "Date": order_date,
-                "Time": order_time,  
+                "Time": order_time,
             }
             order_messages["ORDER CONFIRMATION"] = order_confirm
             return order_messages
         except PlaywrightTimeoutError:
-            order_messages[
-                "ORDER CONFIRMATION"
-            ] = "No order confirmation page found. Order Failed."
+            order_messages["ORDER CONFIRMATION"] = (
+                "No order confirmation page found. Order Failed."
+            )
             return order_messages
-
 
     def get_quote(self, symbol):
         """
@@ -311,7 +318,9 @@ class Order:
             str: The price of the stock.
         """
         self.session.go_url(order_page())
-        quote_box = self.session.page.wait_for_selector("//input[@placeholder='Get Quote']")
+        quote_box = self.session.page.wait_for_selector(
+            "//input[@placeholder='Get Quote']"
+        )
         quote_box.click()
         quote_box.fill("")
         quote_box.fill(symbol)
@@ -320,7 +329,9 @@ class Order:
             "Enter",
         )
         for _ in range(3):
-            quote_price = self.session.page.wait_for_selector("(//div[@data-testid='txt-quote-value'])[2]", timeout=10000).text_content()
+            quote_price = self.session.page.wait_for_selector(
+                "(//div[@data-testid='txt-quote-value'])[2]", timeout=10000
+            ).text_content()
             sleep(1)
             if quote_price != "$—":
                 quote_price = float(quote_price.replace("$", "").replace(",", ""))

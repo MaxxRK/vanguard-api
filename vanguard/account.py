@@ -1,5 +1,6 @@
 from datetime import datetime
 from itertools import zip_longest
+
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 from .session import VanguardSession
@@ -50,9 +51,8 @@ class AllAccount:
         Returns:
            string: account_id
         """
-        account_id = selector.query_selector('span > span > span > span').inner_text()
+        account_id = selector.query_selector("span > span > span > span").inner_text()
         return account_id.split("—")[2].strip().replace("*", "")
-
 
     def _parse_rows(self, table_rows, account_id):
         """
@@ -62,9 +62,15 @@ class AllAccount:
             table_rows (ElementHandle): The rows of the table to parse.
             account_id (string): The account ID associated with the table.
         """
-        (stocks, stock_symbols, stock_descriptions,
-         stock_prices, dollar_changes,
-         percent_changes, quantities) = [], [], [], [], [], [], []
+        (
+            stocks,
+            stock_symbols,
+            stock_descriptions,
+            stock_prices,
+            dollar_changes,
+            percent_changes,
+            quantities,
+        ) = ([], [], [], [], [], [], [])
         for i, row in enumerate(table_rows):
             if i == 0:
                 type = row.query_selector("th")
@@ -73,9 +79,9 @@ class AllAccount:
                     if account_id not in self.accounts_positions:
                         self.accounts_positions[account_id] = {}
                     if type not in self.accounts_positions[account_id]:
-                        self.accounts_positions[account_id][type] = []   
+                        self.accounts_positions[account_id][type] = []
             elif i >= 2:
-                stock_names = row.query_selector_all('th')
+                stock_names = row.query_selector_all("th")
                 for j, info in enumerate(stock_names):
                     description = info.inner_text().strip()
                     if j == 1:
@@ -87,7 +93,11 @@ class AllAccount:
                     if k == 0:
                         price_text = price.inner_text()
                         try:
-                            stock_prices.append(float(price_text.replace("$", "").replace(",", "").strip()))
+                            stock_prices.append(
+                                float(
+                                    price_text.replace("$", "").replace(",", "").strip()
+                                )
+                            )
                         except ValueError:
                             stock_prices.append(0.00)
                     elif k == 1:
@@ -100,21 +110,33 @@ class AllAccount:
                         except ValueError:
                             quantities.append(0.00)
             if i == len(table_rows) - 1:
-                for (stock_symbol, stock_description, stock_price, dollar_change,
-                                    percent_change, quantity) in zip_longest(stock_symbols, stock_descriptions,
-                                                        stock_prices, dollar_changes,
-                                                        percent_changes, quantities, fillvalue=None):
-                    stocks.append({
-                        "symbol": stock_symbol,
-                        "description": stock_description,
-                        "price": stock_price,
-                        "dollar_change": dollar_change,
-                        "percent_change": percent_change,
-                        "quantity": quantity
-                    })
+                for (
+                    stock_symbol,
+                    stock_description,
+                    stock_price,
+                    dollar_change,
+                    percent_change,
+                    quantity,
+                ) in zip_longest(
+                    stock_symbols,
+                    stock_descriptions,
+                    stock_prices,
+                    dollar_changes,
+                    percent_changes,
+                    quantities,
+                    fillvalue=None,
+                ):
+                    stocks.append(
+                        {
+                            "symbol": stock_symbol,
+                            "description": stock_description,
+                            "price": stock_price,
+                            "dollar_change": dollar_change,
+                            "percent_change": percent_change,
+                            "quantity": quantity,
+                        }
+                    )
                     self.accounts_positions[account_id][type] = stocks
-                
-    
 
     def get_holdings(self):
         """
@@ -127,30 +149,33 @@ class AllAccount:
         """
         try:
             self.session.go_url(holdings_page())
-            self.as_of_time = datetime.strftime(
-                datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ"
-            )
+            self.as_of_time = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ")
             self.session.page.wait_for_selector(
-                '//span[contains(text(), "Expand all accounts")]',
-                timeout=120000
-                ).click()
-            total_element = self.session.page.wait_for_selector('//p[@class="c11n-text-xl-headline accordion-headline"]')
-            self.total_value = float(total_element.inner_text().split()[-1].replace(",","").replace("$",""))
+                '//span[contains(text(), "Expand all accounts")]', timeout=120000
+            ).click()
+            total_element = self.session.page.wait_for_selector(
+                '//p[@class="c11n-text-xl-headline accordion-headline"]'
+            )
+            self.total_value = float(
+                total_element.inner_text().split()[-1].replace(",", "").replace("$", "")
+            )
             self.session.page.wait_for_selector("#overflow-override")
             all_selectors = self.session.page.query_selector_all("#overflow-override")
             for i, selector in enumerate(all_selectors):
                 account_id = self._get_account_id(selector)
                 self.account_numbers.append(account_id)
-                table_wrapper = selector.wait_for_selector(f'#self_managed_table_{i}')
-                table_entries = table_wrapper.query_selector_all('tbody')
-                for j,entry in enumerate(table_entries):
+                table_wrapper = selector.wait_for_selector(f"#self_managed_table_{i}")
+                table_entries = table_wrapper.query_selector_all("tbody")
+                for j, entry in enumerate(table_entries):
                     if j == len(table_entries) - 1:
-                        total_row = entry.query_selector_all('tr')
+                        total_row = entry.query_selector_all("tr")
                         for row in total_row:
                             totals = row.inner_text().split()
-                            self.account_totals[account_id] = totals[-1].replace("$", "")
-                    table_rows = entry.query_selector_all('tr')
-                    self._parse_rows(table_rows, account_id)      
+                            self.account_totals[account_id] = totals[-1].replace(
+                                "$", ""
+                            )
+                    table_rows = entry.query_selector_all("tr")
+                    self._parse_rows(table_rows, account_id)
             return True
         except PlaywrightTimeoutError:
             return False

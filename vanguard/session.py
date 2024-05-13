@@ -177,6 +177,9 @@ class VanguardSession:
                     if otp_card.inner_text() == f"***-***-{last_four}":
                         otp_card.click()
                         break
+            except PlaywrightTimeoutError:
+                pass
+            try:
                 self.page.wait_for_selector(
                     "xpath=//div[contains(text(), 'Text')]", timeout=10000
                 ).click()

@@ -171,7 +171,6 @@ class AllAccount:
         except PlaywrightTimeoutError:
             return False
 
-        
     def get_holdings(self):
         """
         Retrieves and sets the holdings information of the account.

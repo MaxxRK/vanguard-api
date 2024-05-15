@@ -154,13 +154,24 @@ class AllAccount:
             ).click()
             self.session.page.wait_for_selector("#overflow-override")
             all_selectors = self.session.page.query_selector_all("#overflow-override")
-            for _, selector in enumerate(all_selectors):
+            for i, selector in enumerate(all_selectors):
                 account_id = self._get_account_id(selector)
                 self.account_numbers.append(account_id)
+                table_wrapper = selector.wait_for_selector(f"#self_managed_table_{i}")
+                table_entries = table_wrapper.query_selector_all("tbody")
+                for j, entry in enumerate(table_entries):
+                    if j == len(table_entries) - 1:
+                        total_row = entry.query_selector_all("tr")
+                        for row in total_row:
+                            totals = row.inner_text().split()
+                            self.account_totals[account_id] = totals[-1].replace(
+                                "$", ""
+                            )
             return True
         except PlaywrightTimeoutError:
             return False
 
+        
     def get_holdings(self):
         """
         Retrieves and sets the holdings information of the account.
@@ -188,14 +199,7 @@ class AllAccount:
                 account_id = self._get_account_id(selector)
                 table_wrapper = selector.wait_for_selector(f"#self_managed_table_{i}")
                 table_entries = table_wrapper.query_selector_all("tbody")
-                for j, entry in enumerate(table_entries):
-                    if j == len(table_entries) - 1:
-                        total_row = entry.query_selector_all("tr")
-                        for row in total_row:
-                            totals = row.inner_text().split()
-                            self.account_totals[account_id] = totals[-1].replace(
-                                "$", ""
-                            )
+                for entry in table_entries:
                     table_rows = entry.query_selector_all("tr")
                     self._parse_rows(table_rows, account_id)
             return True

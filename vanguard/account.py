@@ -138,6 +138,29 @@ class AllAccount:
                     )
                     self.accounts_positions[account_id][type] = stocks
 
+    def get_account_ids(self):
+        """
+        Retrieves and sets the account numbers associated with the session.
+
+        This method navigates to the account holdings page, waits for the account numbers to load, and then retrieves the account numbers from the page.
+
+        Returns:
+            bool: True if the account numbers were successfully retrieved, False otherwise.
+        """
+        try:
+            self.session.go_url(holdings_page())
+            self.session.page.wait_for_selector(
+                '//span[contains(text(), "Expand all accounts")]', timeout=120000
+            ).click()
+            self.session.page.wait_for_selector("#overflow-override")
+            all_selectors = self.session.page.query_selector_all("#overflow-override")
+            for _, selector in enumerate(all_selectors):
+                account_id = self._get_account_id(selector)
+                self.account_numbers.append(account_id)
+            return True
+        except PlaywrightTimeoutError:
+            return False
+
     def get_holdings(self):
         """
         Retrieves and sets the holdings information of the account.
@@ -163,7 +186,6 @@ class AllAccount:
             all_selectors = self.session.page.query_selector_all("#overflow-override")
             for i, selector in enumerate(all_selectors):
                 account_id = self._get_account_id(selector)
-                self.account_numbers.append(account_id)
                 table_wrapper = selector.wait_for_selector(f"#self_managed_table_{i}")
                 table_entries = table_wrapper.query_selector_all("tbody")
                 for j, entry in enumerate(table_entries):

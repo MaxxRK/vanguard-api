@@ -145,14 +145,20 @@ class VanguardSession:
         try:
             self.password = password
             self.go_url(landing_page())
-            try:
-                self.page.wait_for_selector(
-                    "#username-password-submit-btn-1", timeout=30000
-                )
-            except PlaywrightTimeoutError:
-                if self.page.url == landing_page():
-                    return False
-                raise Exception("Could not find submit button on login page.")
+            for _ in range(30):
+                try:
+                    if self.page.url == landing_page():
+                        self.page.wait_for_selector(
+                            "//h2[contains(text(), 'Accounts')]",
+                            timeout=1000,
+                        )
+                        return False
+                    self.page.wait_for_selector(
+                        "#username-password-submit-btn-1", timeout=1000
+                    )
+                    break
+                except PlaywrightTimeoutError:
+                    continue
             username_box = self.page.query_selector("#USER")
             username_box.type(username, delay=random.randint(50, 500))
             username_box.press("Tab")
@@ -162,13 +168,13 @@ class VanguardSession:
             self.page.query_selector("#username-password-submit-btn-1").click()
             try:
                 self.page.wait_for_selector(
-                    "button.col-md:nth-child(2) > div:nth-child(1)", timeout=10000
+                    "button.col-md:nth-child(2) > div:nth-child(1)", timeout=5000
                 ).click()
             except PlaywrightTimeoutError:
                 pass
             try:
                 self.page.wait_for_selector(
-                    "xpath=//div[contains(text(), '***-***-')]", timeout=10000
+                    "xpath=//div[contains(text(), '***-***-')]", timeout=5000
                 )
                 otp_cards = self.page.query_selector_all(
                     "xpath=//div[contains(text(), '***-***-')]"
@@ -181,7 +187,7 @@ class VanguardSession:
                 pass
             try:
                 self.page.wait_for_selector(
-                    "xpath=//div[contains(text(), 'Text')]", timeout=10000
+                    "xpath=//div[contains(text(), 'Text')]", timeout=5000
                 ).click()
                 return True
             except PlaywrightTimeoutError:
@@ -208,17 +214,17 @@ class VanguardSession:
         """
         try:
             code = str(code)
-            self.page.wait_for_selector("#CODE", timeout=10000).fill(code)
+            self.page.wait_for_selector("#CODE", timeout=5000).fill(code)
             self.page.query_selector(
                 "c11n-radio.c11n-radio:nth-child(2) > label:nth-child(2)"
             ).click()
             self.page.wait_for_selector(
-                "#security-code-submit-btn", timeout=10000
+                "#security-code-submit-btn", timeout=5000
             ).click()
             sleep(5)
             try:
                 self.page.wait_for_url(
-                    landing_page(), wait_until="domcontentloaded", timeout=10000
+                    landing_page(), wait_until="domcontentloaded", timeout=5000
                 )
                 if self.title is not None:
                     self.save_storage_state()

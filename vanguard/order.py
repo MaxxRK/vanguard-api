@@ -97,18 +97,21 @@ class Order:
             "ORDER CONFIRMATION": "",
         }
         self.session.go_url(order_page())
-        # self.session.page.wait_for_selector(
-        #     "//div[text()=' Select Account ']", timeout=20000
-        # ).click()
-        # account_box = self.session.page.wait_for_selector(
-        #     ".c11n-modal-dialog-open",
-        #     timeout=10000,
-        # )
-        # account_selectors = account_box.query_selector_all("tds-list-option")
-        # for account in account_selectors:
-        #     if account_id in account.text_content():
-        #         account.click()
-        #         break
+        try:
+            self.session.page.wait_for_selector(
+                 "//div[text()=' Select Account ']", timeout=10000
+             ).click()
+            account_box = self.session.page.wait_for_selector(
+                ".c11n-modal-dialog-open",
+                 timeout=10000,
+             )
+            account_selectors = account_box.query_selector_all("tds-list-option")
+                for account in account_selectors:
+                    if account_id in account.text_content():
+                        account.click()
+                        break
+        except:
+            pass
         quote_box = self.session.page.wait_for_selector(
             "//input[@placeholder='Get Quote']"
         )

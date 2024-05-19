@@ -97,19 +97,18 @@ class Order:
             "ORDER CONFIRMATION": "",
         }
         self.session.go_url(order_page())
-
-        self.session.page.wait_for_selector(
-            "//div[text()=' Select Account ']", timeout=20000
-        ).click()
-        account_box = self.session.page.wait_for_selector(
-            ".c11n-modal-dialog-open",
-            timeout=10000,
-        )
-        account_selectors = account_box.query_selector_all("tds-list-option")
-        for account in account_selectors:
-            if account_id in account.text_content():
-                account.click()
-                break
+        # self.session.page.wait_for_selector(
+        #     "//div[text()=' Select Account ']", timeout=20000
+        # ).click()
+        # account_box = self.session.page.wait_for_selector(
+        #     ".c11n-modal-dialog-open",
+        #     timeout=10000,
+        # )
+        # account_selectors = account_box.query_selector_all("tds-list-option")
+        # for account in account_selectors:
+        #     if account_id in account.text_content():
+        #         account.click()
+        #         break
         quote_box = self.session.page.wait_for_selector(
             "//input[@placeholder='Get Quote']"
         )
@@ -185,7 +184,9 @@ class Order:
                 self.session.page.click("xpath=//label[text()='60-day (GTC)']")
             if order_type == "SELL":
                 self.session.page.wait_for_selector(
-                    "body > twe-root > main > twe-trade > form > div > div.row > div:nth-child(1) > twe-cost-basis-control > twe-cost-basis-modal > tds-modal > div.modal.visible > div > div.modal__content",
+                    "body > twe-root > main > twe-trade > form > div > div.row >"
+                    " div:nth-child(1) > twe-cost-basis-control > twe-cost-basis-modal"
+                    " > tds-modal > div.modal.visible > div > div.modal__content",
                     timeout=10000,
                 )
                 self.session.page.wait_for_selector(
@@ -196,7 +197,10 @@ class Order:
             pass
         try:
             self.session.page.wait_for_selector(
-                "body > twe-root > main > twe-trade > form > div > div.row > div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail > tds-card > div > tds-card-body > div.twe-flex-button-wrap > button:nth-child(2)",
+                "body > twe-root > main > twe-trade > form > div > div.row >"
+                " div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail"
+                " > tds-card > div > tds-card-body > div.twe-flex-button-wrap >"
+                " button:nth-child(2)",
                 timeout=5000,
             ).click()
         except PlaywrightTimeoutError:
@@ -213,7 +217,10 @@ class Order:
 
         try:
             warning = self.session.page.wait_for_selector(
-                "body > twe-root > main > twe-trade > form > div > div.row > div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail > tds-card > div > tds-card-body > div:nth-child(3) > div > tds-card > div > tds-card-body",
+                "body > twe-root > main > twe-trade > form > div > div.row >"
+                " div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail"
+                " > tds-card > div > tds-card-body > div:nth-child(3) > div > tds-card"
+                " > div > tds-card-body",
                 timeout=5000,
             )
             warning_header_selector = warning.query_selector("p")
@@ -229,12 +236,14 @@ class Order:
 
         try:
             order_preview = self.session.page.wait_for_selector(
-                "body > twe-root > main > twe-preview > div > div > div.col-lg-7 > tds-card > div > tds-card-body > twe-order-details",
+                "body > twe-root > main > twe-preview > div > div > div.col-lg-7 >"
+                " tds-card > div > tds-card-body > twe-order-details",
                 timeout=5000,
             )
             order_preview_text = order_preview.text_content()
             preview_parts = re.split(
-                r"(Account|Transaction|Shares|Security|Order type|Duration|Commission|Estimated amount|\*)",
+                r"(Account|Transaction|Shares|Security|Order"
+                r" type|Duration|Commission|Estimated amount|\*)",
                 order_preview_text,
             )
             order_preview = {
@@ -263,11 +272,14 @@ class Order:
 
         try:
             order_handle_one = self.session.page.wait_for_selector(
-                "body > twe-root > main > twe-confirm > div > div > div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 > h2",
+                "body > twe-root > main > twe-confirm > div > div >"
+                " div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 > h2",
                 timeout=5000,
             )
             order_handle_two = self.session.page.wait_for_selector(
-                "body > twe-root > main > twe-confirm > div > div > div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 > div.page-heading.tds-mb-7",
+                "body > twe-root > main > twe-confirm > div > div >"
+                " div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 >"
+                " div.page-heading.tds-mb-7",
                 timeout=5000,
             )
             order_number_text = order_handle_one.text_content()

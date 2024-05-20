@@ -52,7 +52,9 @@ class AllAccount:
            string: account_id
         """
         account_id = selector.query_selector("span > span > span > span").inner_text()
-        return account_id.split("—")[2].strip().replace("*", "")
+        if len(account_fields := account_id.split("—")) == 3:
+            return account_fields[2].strip().replace("*", "")
+        return None
 
     def _parse_rows(self, table_rows, account_id):
         """
@@ -126,16 +128,14 @@ class AllAccount:
                     quantities,
                     fillvalue=None,
                 ):
-                    stocks.append(
-                        {
-                            "symbol": stock_symbol,
-                            "description": stock_description,
-                            "price": stock_price,
-                            "dollar_change": dollar_change,
-                            "percent_change": percent_change,
-                            "quantity": quantity,
-                        }
-                    )
+                    stocks.append({
+                        "symbol": stock_symbol,
+                        "description": stock_description,
+                        "price": stock_price,
+                        "dollar_change": dollar_change,
+                        "percent_change": percent_change,
+                        "quantity": quantity,
+                    })
                     self.accounts_positions[account_id][type] = stocks
 
     def get_account_ids(self):
@@ -156,6 +156,8 @@ class AllAccount:
             all_selectors = self.session.page.query_selector_all("#overflow-override")
             for i, selector in enumerate(all_selectors):
                 account_id = self._get_account_id(selector)
+                if not account_id:
+                    continue
                 self.account_numbers.append(account_id)
                 table_wrapper = selector.wait_for_selector(f"#self_managed_table_{i}")
                 table_entries = table_wrapper.query_selector_all("tbody")
@@ -171,7 +173,6 @@ class AllAccount:
         except PlaywrightTimeoutError:
             return False
 
-        
     def get_holdings(self):
         """
         Retrieves and sets the holdings information of the account.
@@ -197,6 +198,8 @@ class AllAccount:
             all_selectors = self.session.page.query_selector_all("#overflow-override")
             for i, selector in enumerate(all_selectors):
                 account_id = self._get_account_id(selector)
+                if not account_id:
+                    continue
                 table_wrapper = selector.wait_for_selector(f"#self_managed_table_{i}")
                 table_entries = table_wrapper.query_selector_all("tbody")
                 for entry in table_entries:

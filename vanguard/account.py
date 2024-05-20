@@ -128,14 +128,16 @@ class AllAccount:
                     quantities,
                     fillvalue=None,
                 ):
-                    stocks.append({
-                        "symbol": stock_symbol,
-                        "description": stock_description,
-                        "price": stock_price,
-                        "dollar_change": dollar_change,
-                        "percent_change": percent_change,
-                        "quantity": quantity,
-                    })
+                    stocks.append(
+                        {
+                            "symbol": stock_symbol,
+                            "description": stock_description,
+                            "price": stock_price,
+                            "dollar_change": dollar_change,
+                            "percent_change": percent_change,
+                            "quantity": quantity,
+                        }
+                    )
                     self.accounts_positions[account_id][type] = stocks
 
     def get_account_ids(self):

@@ -159,13 +159,16 @@ class VanguardSession:
                     break
                 except PlaywrightTimeoutError:
                     continue
-            username_box = self.page.query_selector("#USER")
-            username_box.type(username, delay=random.randint(50, 500))
-            username_box.press("Tab")
-            password_box = self.page.query_selector("#PASSWORD-blocked")
-            password_box.type(password, delay=random.randint(50, 500))
-            sleep(random.uniform(1, 3))
-            self.page.query_selector("#username-password-submit-btn-1").click()
+            try:
+                username_box = self.page.wait_for_selector("#USER", timeout=10000)
+                username_box.type(username, delay=random.randint(50, 500))
+                username_box.press("Tab")
+                password_box = self.page.query_selector("#PASSWORD-blocked")
+                password_box.type(password, delay=random.randint(50, 500))
+                sleep(random.uniform(1, 3))
+                self.page.query_selector("#username-password-submit-btn-1").click()
+            except PlaywrightTimeoutError:
+                pass
             try:
                 self.page.wait_for_selector(
                     "button.col-md:nth-child(2) > div:nth-child(1)", timeout=5000

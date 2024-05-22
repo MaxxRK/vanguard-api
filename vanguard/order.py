@@ -175,11 +175,13 @@ class Order:
                 )
                 return order_messages
             self.session.page.wait_for_selector("//label[text()='Stop Limit']").click()
-
-        if price_type in ["LIMIT", "STOP_LIMIT"]:
-            self.session.page.fill("#limitPrice", str(limit_price))
-        if price_type in ["STOP", "STOP_LIMIT"]:
-            self.session.page.fill("#stopPrice", str(stop_price))
+        try:
+            if price_type in ["LIMIT", "STOP_LIMIT"]:
+                self.session.page.fill("#limitPrice", str(limit_price))
+            if price_type in ["STOP", "STOP_LIMIT"]:
+                self.session.page.fill("#stopPrice", str(stop_price))
+        except PlaywrightTimeoutError:
+            pass
         try:
             if duration == "DAY":
                 self.session.page.click("xpath=//label[text()='Day']")

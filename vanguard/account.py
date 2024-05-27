@@ -52,7 +52,7 @@ class AllAccount:
            string: account_id
         """
         account_id = selector.query_selector("span > span > span > span").inner_text()
-        if len(account_fields := account_id.split("—")) == 3:
+        if len(account_fields := account_id.split("—")) == 3 and ("brokerage" in account_fields[1].lower()):
             return account_fields[2].strip().replace("*", "")
         return None
 

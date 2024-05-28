@@ -8,7 +8,7 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 from playwright_stealth import stealth_sync
 
-from .urls import login_page, landing_page
+from .urls import landing_page, login_page
 
 
 class VanguardSession:
@@ -90,8 +90,8 @@ class VanguardSession:
             storage_state=self.profile_path if self.title is not None else None,
         )
         self.page = self.context.new_page()
-        #testing without playwright-stealth for a bit
-        #stealth_sync(self.page)
+        # testing without playwright-stealth for a bit
+        # stealth_sync(self.page)
         if self.debug:
             self.context.tracing.start(
                 name="vanguard_trace", screenshots=True, snapshots=True
@@ -127,7 +127,7 @@ class VanguardSession:
         except Exception as e:
             if "NS_BINDING_ABORTED" not in str(e):
                 raise e
-    
+
     def find_login_state(self):
         for _ in range(120):
             try:
@@ -150,12 +150,11 @@ class VanguardSession:
                 selector = self.page.wait_for_selector("#CODE", timeout=500)
                 if selector is not None:
                     mode = 3
-                    return mode 
+                    return mode
             except PlaywrightTimeoutError:
                 pass
         mode = 0
         return mode
-        
 
     def login(self, username, password, last_four):
         """

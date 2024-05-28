@@ -8,7 +8,7 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 from playwright_stealth import stealth_sync
 
-from .urls import landing_page
+from .urls import login_page, landing_page
 
 
 class VanguardSession:
@@ -90,7 +90,8 @@ class VanguardSession:
             storage_state=self.profile_path if self.title is not None else None,
         )
         self.page = self.context.new_page()
-        stealth_sync(self.page)
+        #testing without playwright-stealth for a bit
+        #stealth_sync(self.page)
         if self.debug:
             self.context.tracing.start(
                 name="vanguard_trace", screenshots=True, snapshots=True
@@ -126,6 +127,35 @@ class VanguardSession:
         except Exception as e:
             if "NS_BINDING_ABORTED" not in str(e):
                 raise e
+    
+    def find_login_state(self):
+        for _ in range(120):
+            try:
+                if "challenges.web.vanguard.com" in self.page.url:
+                    mode = 1
+                    return mode
+                if self.page.url == landing_page():
+                    self.page.wait_for_selector(
+                        "//h2[contains(text(), 'Accounts')]",
+                        timeout=1000,
+                    )
+                    mode = 1
+                    return mode
+                selector = self.page.wait_for_selector(
+                    "#username-password-submit-btn-1", timeout=500
+                )
+                if selector is not None:
+                    mode = 2
+                    return mode
+                selector = self.page.wait_for_selector("#CODE", timeout=500)
+                if selector is not None:
+                    mode = 3
+                    return mode 
+            except PlaywrightTimeoutError:
+                pass
+        mode = 0
+        return mode
+        
 
     def login(self, username, password, last_four):
         """
@@ -144,59 +174,53 @@ class VanguardSession:
         """
         try:
             self.password = password
-            self.go_url(landing_page())
-            for _ in range(30):
-                try:
-                    if self.page.url == landing_page():
-                        self.page.wait_for_selector(
-                            "//h2[contains(text(), 'Accounts')]",
-                            timeout=1000,
-                        )
-                        return False
-                    self.page.wait_for_selector(
-                        "#username-password-submit-btn-1", timeout=1000
-                    )
-                    break
-                except PlaywrightTimeoutError:
-                    continue
-            try:
-                username_box = self.page.wait_for_selector("#USER", timeout=10000)
-                username_box.type(username, delay=random.randint(50, 500))
-                username_box.press("Tab")
-                password_box = self.page.query_selector("#PASSWORD-blocked")
-                password_box.type(password, delay=random.randint(50, 500))
-                sleep(random.uniform(1, 3))
-                self.page.query_selector("#username-password-submit-btn-1").click()
-            except PlaywrightTimeoutError:
-                pass
-            try:
-                self.page.wait_for_selector(
-                    "button.col-md:nth-child(2) > div:nth-child(1)", timeout=5000
-                ).click()
-            except PlaywrightTimeoutError:
-                pass
-            try:
-                self.page.wait_for_selector(
-                    "xpath=//div[contains(text(), '***-***-')]", timeout=5000
-                )
-                otp_cards = self.page.query_selector_all(
-                    "xpath=//div[contains(text(), '***-***-')]"
-                )
-                for otp_card in otp_cards:
-                    if otp_card.inner_text() == f"***-***-{last_four}":
-                        otp_card.click()
-                        break
-            except PlaywrightTimeoutError:
-                pass
-            try:
-                self.page.wait_for_selector(
-                    "xpath=//div[contains(text(), 'Text')]", timeout=5000
-                ).click()
-                return True
-            except PlaywrightTimeoutError:
-                if self.title is not None:
-                    self.save_storage_state()
+            self.go_url(login_page())
+            login_state = self.find_login_state()
+            if login_state == 0:
+                raise Exception("Failed to find login state")
+            elif login_state == 1:
                 return False
+            elif login_state == 2:
+                try:
+                    username_box = self.page.wait_for_selector("#USER", timeout=10000)
+                    username_box.type(username, delay=random.randint(50, 500))
+                    username_box.press("Tab")
+                    password_box = self.page.query_selector("#PASSWORD-blocked")
+                    password_box.type(password, delay=random.randint(50, 500))
+                    sleep(random.uniform(1, 3))
+                    self.page.query_selector("#username-password-submit-btn-1").click()
+                except PlaywrightTimeoutError:
+                    pass
+                try:
+                    self.page.wait_for_selector(
+                        "button.col-md:nth-child(2) > div:nth-child(1)", timeout=5000
+                    ).click()
+                except PlaywrightTimeoutError:
+                    pass
+                try:
+                    self.page.wait_for_selector(
+                        "xpath=//div[contains(text(), '***-***-')]", timeout=5000
+                    )
+                    otp_cards = self.page.query_selector_all(
+                        "xpath=//div[contains(text(), '***-***-')]"
+                    )
+                    for otp_card in otp_cards:
+                        if otp_card.inner_text() == f"***-***-{last_four}":
+                            otp_card.click()
+                            break
+                except PlaywrightTimeoutError:
+                    pass
+                try:
+                    self.page.wait_for_selector(
+                        "xpath=//div[contains(text(), 'Text')]", timeout=5000
+                    ).click()
+                    return True
+                except PlaywrightTimeoutError:
+                    if self.title is not None:
+                        self.save_storage_state()
+                    return False
+            elif login_state == 3:
+                return True
         except Exception as e:
             self.close_browser()
             traceback.print_exc()

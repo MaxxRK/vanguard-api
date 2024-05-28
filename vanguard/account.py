@@ -150,12 +150,18 @@ class AllAccount:
             bool: True if the account numbers were successfully retrieved, False otherwise.
         """
         try:
-            self.session.go_url(holdings_page())
-            self.session.page.wait_for_selector(
-                '//span[contains(text(), "Expand all accounts")]', timeout=120000
-            ).click()
-            self.session.page.wait_for_selector("#overflow-override")
-            all_selectors = self.session.page.query_selector_all("#overflow-override")
+            
+            for _ in range(5):
+                try:
+                    self.session.go_url(holdings_page())
+                    self.session.page.wait_for_selector(
+                        '//span[contains(text(), "Expand all accounts")]', timeout=10000
+                    ).click()
+                    self.session.page.wait_for_selector("#overflow-override")
+                    all_selectors = self.session.page.query_selector_all("#overflow-override")
+                    break
+                except PlaywrightTimeoutError:
+                    continue
             for i, selector in enumerate(all_selectors):
                 account_id = self._get_account_id(selector)
                 if not account_id:

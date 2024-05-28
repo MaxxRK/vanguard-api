@@ -136,7 +136,14 @@ class Order:
 
         if order_messages["ORDER INVALID"] != "Order page loaded correctly.":
             return order_messages
-
+        try:
+            self.session.page.wait_for_selector(
+                "twe-trade-cannot-be-completed-modal tds-modal .modal__content",
+                timeout=3000
+            )
+            self.session.page.locator("xpath=//button[contains(text(), 'OK')]").click()
+        except PlaywrightTimeoutError:
+            pass
         if order_type == "BUY":
             buy_btn = self.session.page.wait_for_selector("xpath=//label[text()='Buy']")
             buy_btn.click()
@@ -189,13 +196,17 @@ class Order:
                 self.session.page.click("xpath=//label[text()='60-day (GTC)']")
             if order_type == "SELL":
                 self.session.page.wait_for_selector(
+                    "twe-cost-basis-modal tds-checkbox .tds-checkbox__indicator.tds-checkbox--blue",
+                    timeout=3000
+                ).click()
+                self.session.page.wait_for_selector(
+                    "//button[contains(text(), ' Continue ')]",
+                    timeout=10000,
+                ).click()
+                self.session.page.wait_for_selector(
                     "body > twe-root > main > twe-trade > form > div > div.row > div:nth-child(1) > twe-cost-basis-control > twe-cost-basis-modal > tds-modal > div.modal.visible > div > div.modal__content",
                     timeout=10000,
                 )
-                self.session.page.wait_for_selector(
-                    "//button[text()=' Continue ']",
-                    timeout=10000,
-                ).click()
         except PlaywrightTimeoutError:
             pass
         try:
@@ -217,7 +228,7 @@ class Order:
 
         try:
             warning = self.session.page.wait_for_selector(
-                "body > twe-root > main > twe-trade > form > div > div.row > div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail > tds-card > div > tds-card-body > div:nth-child(3) > div > tds-card > div > tds-card-body",
+                "div.col-lg-6:nth-child(3) > twe-trade-detail:nth-child(2) > tds-card:nth-child(1) > div:nth-child(1) > tds-card-body:nth-child(1) > div:nth-child(3)",
                 timeout=5000,
             )
             warning_header_selector = warning.query_selector("p")

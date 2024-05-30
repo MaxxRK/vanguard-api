@@ -52,7 +52,9 @@ class AllAccount:
            string: account_id
         """
         account_id = selector.query_selector("span > span > span > span").inner_text()
-        if len(account_fields := account_id.split("—")) == 3 and ("brokerage" in account_fields[1].lower()):
+        if len(account_fields := account_id.split("—")) == 3 and (
+            "brokerage" in account_fields[1].lower()
+        ):
             return account_fields[2].strip().replace("*", "")
         return None
 
@@ -150,7 +152,7 @@ class AllAccount:
             bool: True if the account numbers were successfully retrieved, False otherwise.
         """
         try:
-            
+
             for _ in range(5):
                 try:
                     self.session.go_url(holdings_page())
@@ -158,7 +160,9 @@ class AllAccount:
                         '//span[contains(text(), "Expand all accounts")]', timeout=30000
                     ).click()
                     self.session.page.wait_for_selector("#overflow-override")
-                    all_selectors = self.session.page.query_selector_all("#overflow-override")
+                    all_selectors = self.session.page.query_selector_all(
+                        "#overflow-override"
+                    )
                     break
                 except PlaywrightTimeoutError:
                     continue

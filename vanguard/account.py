@@ -155,7 +155,7 @@ class AllAccount:
                 try:
                     self.session.go_url(holdings_page())
                     self.session.page.wait_for_selector(
-                        '//span[contains(text(), "Expand all accounts")]', timeout=10000
+                        '//span[contains(text(), "Expand all accounts")]', timeout=30000
                     ).click()
                     self.session.page.wait_for_selector("#overflow-override")
                     all_selectors = self.session.page.query_selector_all("#overflow-override")

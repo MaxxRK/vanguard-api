@@ -137,20 +137,32 @@ class VanguardSession:
                 if self.page.url == landing_page():
                     self.page.wait_for_selector(
                         "//h2[contains(text(), 'Accounts')]",
-                        timeout=1000,
+                        timeout=5000,
                     )
                     mode = 1
                     return mode
-                selector = self.page.wait_for_selector(
+            except PlaywrightTimeoutError:
+                pass
+            try:
+                self.page.wait_for_selector(
                     "#username-password-submit-btn-1", timeout=500
                 )
-                if selector is not None:
-                    mode = 2
-                    return mode
-                selector = self.page.wait_for_selector("#CODE", timeout=500)
-                if selector is not None:
-                    mode = 3
-                    return mode 
+                mode = 2
+                return mode
+            except PlaywrightTimeoutError:
+                pass
+            try:
+                self.page.wait_for_selector(
+                    "button.col-md:nth-child(2) > div:nth-child(1)", timeout=5000
+                )
+                mode = 3
+                return mode
+            except PlaywrightTimeoutError:
+                pass
+            try:
+                self.page.wait_for_selector("#CODE", timeout=500)
+                mode = 4
+                return mode
             except PlaywrightTimeoutError:
                 pass
         mode = 0
@@ -191,6 +203,7 @@ class VanguardSession:
                     self.page.query_selector("#username-password-submit-btn-1").click()
                 except PlaywrightTimeoutError:
                     pass
+            if login_state == 2 or login_state == 3:
                 try:
                     self.page.wait_for_selector(
                         "button.col-md:nth-child(2) > div:nth-child(1)", timeout=5000
@@ -219,7 +232,7 @@ class VanguardSession:
                     if self.title is not None:
                         self.save_storage_state()
                     return False
-            elif login_state == 3:
+            elif login_state == 4:
                 return True
         except Exception as e:
             self.close_browser()

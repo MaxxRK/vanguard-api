@@ -158,7 +158,7 @@ class VanguardSession:
                 pass
             try:
                 self.page.wait_for_selector(
-                        "h1.page-title:nth-child(1)",
+                        "a:has-text('I don\\'t see this in my app')",
                         timeout=5000,
                     )
                 mode = 4

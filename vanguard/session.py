@@ -210,8 +210,8 @@ class VanguardSession:
                     sleep(random.uniform(1, 3))
                     self.page.query_selector("#username-password-submit-btn-1").click()
                 except PlaywrightTimeoutError:
-                    pass    
-            if login_state in [2,3,4]:
+                    pass
+            if login_state in [2, 3, 4]:
                 try:
                     self.page.wait_for_selector(
                         "h1.page-title:nth-child(1)",

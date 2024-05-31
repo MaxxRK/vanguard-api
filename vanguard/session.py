@@ -131,9 +131,6 @@ class VanguardSession:
     def find_login_state(self):
         for _ in range(120):
             try:
-                if "challenges.web.vanguard.com" in self.page.url:
-                    mode = 1
-                    return mode
                 if self.page.url == landing_page():
                     self.page.wait_for_selector(
                         "//h2[contains(text(), 'Accounts')]",
@@ -173,6 +170,9 @@ class VanguardSession:
                 return mode
             except PlaywrightTimeoutError:
                 pass
+            if "challenges.web.vanguard.com" in self.page.url:
+                mode = 1
+                return mode
         mode = 0
         return mode
 
@@ -209,12 +209,12 @@ class VanguardSession:
                     sleep(random.uniform(1, 3))
                     self.page.query_selector("#username-password-submit-btn-1").click()
                 except PlaywrightTimeoutError:
-                    pass
-            if login_state == 4:
+                    pass    
+            if login_state in [2,3,4]:
                 try:
                     self.page.wait_for_selector(
                         """//div[contains(text(), "I don't see this in my app")]""",
-                        timeout=10000,
+                        timeout=5000,
                     ).click()
                     self.page.wait_for_selector(
                         "//button[text()='Continue']",
@@ -222,17 +222,15 @@ class VanguardSession:
                     ).click()
                 except PlaywrightTimeoutError:
                     pass
-            if login_state in [2,3,4]:
-                
                 try:
                     self.page.wait_for_selector(
-                        "button.col-md:nth-child(2) > div:nth-child(1)", timeout=10000
+                        "button.col-md:nth-child(2) > div:nth-child(1)", timeout=5000
                     ).click()
                 except PlaywrightTimeoutError:
                     pass
                 try:
                     self.page.wait_for_selector(
-                        "xpath=//div[contains(text(), '***-***-')]", timeout=10000
+                        "xpath=//div[contains(text(), '***-***-')]", timeout=5000
                     )
                     otp_cards = self.page.query_selector_all(
                         "xpath=//div[contains(text(), '***-***-')]"
@@ -245,7 +243,7 @@ class VanguardSession:
                     pass
                 try:
                     self.page.wait_for_selector(
-                        "xpath=//div[contains(text(), 'Text')]", timeout=10000
+                        "xpath=//div[contains(text(), 'Text')]", timeout=5000
                     ).click()
                     return True
                 except PlaywrightTimeoutError:

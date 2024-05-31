@@ -153,7 +153,7 @@ class VanguardSession:
                 pass
             try:
                 self.page.wait_for_selector(
-                    "button.col-md:nth-child(2) > div:nth-child(1)", timeout=5000
+                    "button.col-md:nth-child(2) > div:nth-child(1)", timeout=500
                 )
                 mode = 3
                 return mode
@@ -161,8 +161,8 @@ class VanguardSession:
                 pass
             try:
                 self.page.wait_for_selector(
-                    "xpath=//div[contains(text(), 'I don't see this in my app')]",
-                    timeout=5000,
+                    """//div[contains(text(), "I don't see this in my app")]""",
+                    timeout=500,
                 ).click()
                 mode = 4
             except PlaywrightTimeoutError:
@@ -211,11 +211,19 @@ class VanguardSession:
                 except PlaywrightTimeoutError:
                     pass
             if login_state == 4:
-                self.session.page.wait_for_selector(
-                    "//button[text()='Continue']",
-                    timeout=5000,
-                ).click()
-            if login_state == 2 or login_state == 3:
+                try:
+                    self.page.wait_for_selector(
+                        """//div[contains(text(), "I don't see this in my app")]""",
+                        timeout=10000,
+                    ).click()
+                    self.page.wait_for_selector(
+                        "//button[text()='Continue']",
+                        timeout=10000,
+                    ).click()
+                except PlaywrightTimeoutError:
+                    pass
+            if login_state in [2,3,4]:
+                
                 try:
                     self.page.wait_for_selector(
                         "button.col-md:nth-child(2) > div:nth-child(1)", timeout=10000

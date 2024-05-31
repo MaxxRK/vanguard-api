@@ -213,13 +213,14 @@ class VanguardSession:
                     pass    
             if login_state in [2,3,4]:
                 try:
+                    print("trying to find the i dont see this")
                     self.page.wait_for_selector(
-                        "h1.page-title:nth-child(1)",
+                        "a:has-text('I don\\'t see this in my app')",
                         timeout=5000,
                     ).click()
                     self.page.wait_for_selector(
                         "button:has-text('Continue')",
-                        timeout=10000,
+                        timeout=5000,
                     ).click()
                 except PlaywrightTimeoutError:
                     pass

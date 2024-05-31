@@ -195,6 +195,7 @@ class VanguardSession:
             self.password = password
             self.go_url(login_page())
             login_state = self.find_login_state()
+            print(f"Login state: {login_state}")
             if login_state == 0:
                 raise Exception("Failed to find login state")
             elif login_state == 1:
@@ -213,11 +214,11 @@ class VanguardSession:
             if login_state in [2,3,4]:
                 try:
                     self.page.wait_for_selector(
-                        """//div[contains(text(), "I don't see this in my app")]""",
+                        "h1.page-title:nth-child(1)",
                         timeout=5000,
                     ).click()
                     self.page.wait_for_selector(
-                        "//button[text()='Continue']",
+                        "button:has-text('Continue')",
                         timeout=10000,
                     ).click()
                 except PlaywrightTimeoutError:

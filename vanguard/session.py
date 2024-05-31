@@ -222,8 +222,8 @@ class VanguardSession:
                     ).click()
                 except PlaywrightTimeoutError:
                     pass
-            if login_state in [2,3,4]:
-                
+            if login_state in [2, 3, 4]:
+
                 try:
                     self.page.wait_for_selector(
                         "button.col-md:nth-child(2) > div:nth-child(1)", timeout=10000

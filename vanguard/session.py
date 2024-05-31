@@ -195,7 +195,6 @@ class VanguardSession:
             self.password = password
             self.go_url(login_page())
             login_state = self.find_login_state()
-            print(f"Login state: {login_state}")
             if login_state == 0:
                 raise Exception("Failed to find login state")
             elif login_state == 1:
@@ -213,7 +212,6 @@ class VanguardSession:
                     pass
             if login_state in [2, 3, 4]:
                 try:
-                    print("trying to find the i dont see this")
                     self.page.wait_for_selector(
                         "a:has-text('I don\\'t see this in my app')",
                         timeout=5000,

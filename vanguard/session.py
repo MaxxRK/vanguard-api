@@ -158,9 +158,9 @@ class VanguardSession:
                 pass
             try:
                 self.page.wait_for_selector(
-                    """//div[contains(text(), "I don't see this in my app")]""",
-                    timeout=500,
-                ).click()
+                        "h1.page-title:nth-child(1)",
+                        timeout=5000,
+                    )
                 mode = 4
             except PlaywrightTimeoutError:
                 pass

@@ -160,8 +160,16 @@ class VanguardSession:
             except PlaywrightTimeoutError:
                 pass
             try:
-                self.page.wait_for_selector("#CODE", timeout=500)
+                self.page.wait_for_selector(
+                    "xpath=//div[contains(text(), 'I don't see this in my app')]",
+                    timeout=5000,
+                ).click()
                 mode = 4
+            except PlaywrightTimeoutError:
+                pass
+            try:
+                self.page.wait_for_selector("#CODE", timeout=500)
+                mode = 5
                 return mode
             except PlaywrightTimeoutError:
                 pass
@@ -203,16 +211,21 @@ class VanguardSession:
                     self.page.query_selector("#username-password-submit-btn-1").click()
                 except PlaywrightTimeoutError:
                     pass
+            if login_state == 4:
+                self.session.page.wait_for_selector(
+                    "//button[text()='Continue']",
+                    timeout=5000,
+                ).click()
             if login_state == 2 or login_state == 3:
                 try:
                     self.page.wait_for_selector(
-                        "button.col-md:nth-child(2) > div:nth-child(1)", timeout=5000
+                        "button.col-md:nth-child(2) > div:nth-child(1)", timeout=10000
                     ).click()
                 except PlaywrightTimeoutError:
                     pass
                 try:
                     self.page.wait_for_selector(
-                        "xpath=//div[contains(text(), '***-***-')]", timeout=5000
+                        "xpath=//div[contains(text(), '***-***-')]", timeout=10000
                     )
                     otp_cards = self.page.query_selector_all(
                         "xpath=//div[contains(text(), '***-***-')]"
@@ -225,14 +238,14 @@ class VanguardSession:
                     pass
                 try:
                     self.page.wait_for_selector(
-                        "xpath=//div[contains(text(), 'Text')]", timeout=5000
+                        "xpath=//div[contains(text(), 'Text')]", timeout=10000
                     ).click()
                     return True
                 except PlaywrightTimeoutError:
                     if self.title is not None:
                         self.save_storage_state()
-                    return False
-            elif login_state == 4:
+                    return False  
+            elif login_state == 5:
                 return True
         except Exception as e:
             self.close_browser()

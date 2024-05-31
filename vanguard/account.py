@@ -151,11 +151,11 @@ class AllAccount:
         """
         try:
             
-            for _ in range(5):
+            for _ in range(1):
                 try:
                     self.session.go_url(holdings_page())
                     self.session.page.wait_for_selector(
-                        '//span[contains(text(), "Expand all accounts")]', timeout=30000
+                        '//span[contains(text(), "Expand all accounts")]', timeout=60000
                     ).click()
                     self.session.page.wait_for_selector("#overflow-override")
                     all_selectors = self.session.page.query_selector_all("#overflow-override")

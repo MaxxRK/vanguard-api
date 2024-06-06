@@ -152,7 +152,7 @@ class Order:
                 "xpath=//label[text()='Sell']"
             )
             sell_btn.click()
-
+        sleep(1)
         quantity_box = self.session.page.wait_for_selector(
             "//input[@placeholder='Enter Shares']"
         )

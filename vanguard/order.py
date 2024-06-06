@@ -139,7 +139,7 @@ class Order:
         try:
             self.session.page.wait_for_selector(
                 "twe-trade-cannot-be-completed-modal tds-modal .modal__content",
-                timeout=3000
+                timeout=3000,
             )
             self.session.page.locator("xpath=//button[contains(text(), 'OK')]").click()
         except PlaywrightTimeoutError:
@@ -197,7 +197,7 @@ class Order:
             if order_type == "SELL":
                 self.session.page.wait_for_selector(
                     "twe-cost-basis-modal tds-checkbox .tds-checkbox__indicator.tds-checkbox--blue",
-                    timeout=3000
+                    timeout=3000,
                 ).click()
                 self.session.page.wait_for_selector(
                     "//button[contains(text(), ' Continue ')]",

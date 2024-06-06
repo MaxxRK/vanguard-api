@@ -152,13 +152,13 @@ class Order:
                 "xpath=//label[text()='Sell']"
             )
             sell_btn.click()
-
+        sleep(1)
         quantity_box = self.session.page.wait_for_selector(
             "//input[@placeholder='Enter Shares']"
         )
         quantity_box.fill("")
         quantity_box.type(str(quantity))
-
+        sleep(1)
         if price_type == "MARKET":
             self.session.page.wait_for_selector("//label[text()='Market']").click()
         elif price_type == "LIMIT":

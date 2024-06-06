@@ -159,7 +159,6 @@ class Order:
         quantity_box.fill("")
         quantity_box.type(str(quantity))
         sleep(1)
-        
         if price_type == "MARKET":
             self.session.page.wait_for_selector("//label[text()='Market']").click()
         elif price_type == "LIMIT":

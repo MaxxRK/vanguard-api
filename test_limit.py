@@ -7,7 +7,7 @@ login_username = input('Input your username: ')
 login_username = login_username.strip()
 login_password = input('Input your password: ')
 login_password = login_password.strip()
-login_input = input('Input last four of your cell phone used to login on chase.com: ')
+login_input = input('Input last four of your cell phone used to login on vanguard.com: ')
 login_input = int(login_input.strip().upper())
 
 profile = input('Input profile name: ')
@@ -21,6 +21,7 @@ else:
     print("Vanguard logged in without 2fa!")
     
 account_info = AllAccount(session)
+account_info.get_account_ids()
 account_info.get_holdings()
 
 print(f'Total value: {account_info.total_value}')

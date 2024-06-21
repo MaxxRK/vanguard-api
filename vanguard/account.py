@@ -55,7 +55,7 @@ class AllAccount:
         if len(account_fields := account_id.split("—")) == 3 and (
             "brokerage" in account_fields[1].lower()
         ):
-            return account_fields[2].strip().replace("*", "")
+            return account_fields[2].strip().replace("*", "") 
         return None
 
     def _parse_rows(self, table_rows, account_id):
@@ -172,13 +172,15 @@ class AllAccount:
                     continue
                 self.account_numbers.append(account_id)
                 table_wrapper = selector.wait_for_selector(f"#self_managed_table_{i}")
-                table_entries = table_wrapper.query_selector_all("tbody")
+                table_entries = table_wrapper.query_selector_all("tfoot")
                 for j, entry in enumerate(table_entries):
                     if j == len(table_entries) - 1:
                         total_row = entry.query_selector_all("tr")
-                        self.account_totals[account_id] = (
-                            total_row[-1].inner_text().split()
-                        )
+                        for row in total_row:
+                            totals = row.inner_text().split()
+                            self.account_totals[account_id] = totals[-1].replace(
+                                "$", ""
+                            ).replace(",", "")
             return True
         except PlaywrightTimeoutError:
             return False

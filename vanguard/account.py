@@ -55,7 +55,7 @@ class AllAccount:
         if len(account_fields := account_id.split("—")) == 3 and (
             "brokerage" in account_fields[1].lower()
         ):
-            return account_fields[2].strip().replace("*", "") 
+            return account_fields[2].strip().replace("*", "")
         return None
 
     def _parse_rows(self, table_rows, account_id):
@@ -178,9 +178,9 @@ class AllAccount:
                         total_row = entry.query_selector_all("tr")
                         for row in total_row:
                             totals = row.inner_text().split()
-                            self.account_totals[account_id] = totals[-1].replace(
-                                "$", ""
-                            ).replace(",", "")
+                            self.account_totals[account_id] = (
+                                totals[-1].replace("$", "").replace(",", "")
+                            )
             return True
         except PlaywrightTimeoutError:
             return False

@@ -176,7 +176,9 @@ class AllAccount:
                 for j, entry in enumerate(table_entries):
                     if j == len(table_entries) - 1:
                         total_row = entry.query_selector_all("tr")
-                        self.account_totals[account_id] = total_row[-1].inner_text().split()
+                        self.account_totals[account_id] = (
+                            total_row[-1].inner_text().split()
+                        )
             return True
         except PlaywrightTimeoutError:
             return False

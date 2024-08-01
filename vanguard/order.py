@@ -197,27 +197,26 @@ class Order:
         except PlaywrightTimeoutError:
             pass
         try:
-            if duration == "DAY":
+            if duration == "DAY" and price_type != "MARKET":
                 self.session.page.click("xpath=//label/span[text()='Day']")
             elif duration == "GOOD_TILL_CANCELLED":
                 self.session.page.click("xpath=//label/span[text()='60-day (GTC)']")
             if order_type == "SELL":
-                self.session.page.wait_for_selector(
-                    "twe-cost-basis-modal tds-checkbox .tds-checkbox__indicator.tds-checkbox--blue",
-                    timeout=3000,
-                ).click()
-                self.session.page.wait_for_selector(
-                    "//button[contains(text(), 'Continue')]",
-                    timeout=10000,
-                ).click()
-                self.session.page.wait_for_selector(
-                    "body > twe-root > main > twe-trade > form > div > div.row > div:nth-child(1) > twe-cost-basis-control > twe-cost-basis-modal > tds-modal > div.modal.visible > div > div.modal__content",
-                    timeout=10000,
-                )
-        except PlaywrightTimeoutError:
+                print("here")
+                cost_basis = self.session.page.locator("text=Choose a cost basis method")
+                print("here")
+                cost_basis.wait_for(timeout=2000)
+                check_box = cost_basis.locator("text=Set as the preferred cost basis method for this holding.").first
+                check_box.click()
+                continue_button = self.session.page.get_by_role("button", name="Continue")
+                expect(continue_button).to_be_visible(timeout=3000)
+                continue_button.click()
+        except (PlaywrightTimeoutError, AssertionError):
+            print("here")
             pass
         try:
-            warning = self.session.page.get_by_text("errorBefore you can proceed").first
+            warning = self.session.page.locator("text=errorBefore you can proceed").first
+            warning.wait_for(timeout=2000)
             warning_header = warning.text_content()
             warning_header = warning_header.replace("error", "").split(":")[0].strip()
             warning_items_locator = self.session.page.get_by_role("main")

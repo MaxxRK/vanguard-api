@@ -17,4 +17,3 @@ def holdings_page():
 
 def order_page():
     return "https://etfs-stocks.web.vanguard.com/c/trade/ticket"
-

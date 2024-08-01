@@ -2,7 +2,8 @@ import re
 from enum import Enum
 from time import sleep
 
-from playwright.sync_api import expect, TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import expect
 
 from .session import VanguardSession
 from .urls import order_page
@@ -142,7 +143,9 @@ class Order:
         except PlaywrightTimeoutError:
             pass
         if order_type == "BUY":
-            buy_btn = self.session.page.wait_for_selector("xpath=//label/span[text()='Buy']")
+            buy_btn = self.session.page.wait_for_selector(
+                "xpath=//label/span[text()='Buy']"
+            )
             buy_btn.click()
         elif order_type == "SELL":
             sell_btn = self.session.page.wait_for_selector(
@@ -167,8 +170,7 @@ class Order:
                     )
                     return order_messages
                 self.session.page.wait_for_selector(
-                    "//label/span[text()='Limit']",
-                    timeout=3000
+                    "//label/span[text()='Limit']", timeout=3000
                 ).click()
             elif price_type == "STOP":
                 if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
@@ -177,8 +179,7 @@ class Order:
                     )
                     return order_messages
                 self.session.page.wait_for_selector(
-                    "//label/span[text()='Stop']",
-                    timeout=3000
+                    "//label/span[text()='Stop']", timeout=3000
                 ).click()
             elif price_type == "STOP_LIMIT":
                 if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
@@ -187,8 +188,7 @@ class Order:
                     )
                     return order_messages
                 self.session.page.wait_for_selector(
-                    "//label/span[text()='Stop Limit']",
-                    timeout=3000
+                    "//label/span[text()='Stop Limit']", timeout=3000
                 ).click()
             if price_type in ["LIMIT", "STOP_LIMIT"]:
                 self.session.page.fill("#limitPrice", str(limit_price))
@@ -223,10 +223,10 @@ class Order:
             warning_items_locator = self.session.page.get_by_role("main")
             warning_items = warning_items_locator.locator("li").all()
             warning_text = {warning_header: []}
-            for i,item in enumerate(warning_items):
+            for i, item in enumerate(warning_items):
                 if i == 0:
-                   warning_text[warning_header].append(item.text_content()) 
-                if warning_text[warning_header][i-1] != item.text_content():
+                    warning_text[warning_header].append(item.text_content())
+                if warning_text[warning_header][i - 1] != item.text_content():
                     warning_text[warning_header].append(item.text_content())
             order_messages["ORDER INVALID"] = warning_text
             return order_messages
@@ -240,9 +240,7 @@ class Order:
             pass
         if after_hours:
             try:
-                after_button = self.session.page.get_by_role(
-                    "button", name="Continue"
-                )
+                after_button = self.session.page.get_by_role("button", name="Continue")
                 expect(after_button).to_be_visible(timeout=3000)
                 after_button.click()
             except (AssertionError, PlaywrightTimeoutError):

@@ -202,22 +202,21 @@ class Order:
             elif duration == "GOOD_TILL_CANCELLED":
                 self.session.page.click("xpath=//label/span[text()='60-day (GTC)']")
             if order_type == "SELL":
-                print("here")
-                cost_basis = self.session.page.locator("text=Choose a cost basis method")
-                print("here")
-                cost_basis.wait_for(timeout=2000)
-                check_box = cost_basis.locator("text=Set as the preferred cost basis method for this holding.").first
-                check_box.click()
+                cost_basis = self.session.page.locator("text=Choose a cost basis method").nth(0)
+                cost_basis.wait_for(timeout=5000)
+                check_box = self.session.page.locator("text=Set as the preferred cost basis method for this holding.").nth(0)
+                check_box.locator("..").click()
                 continue_button = self.session.page.get_by_role("button", name="Continue")
                 expect(continue_button).to_be_visible(timeout=3000)
                 continue_button.click()
         except (PlaywrightTimeoutError, AssertionError):
-            print("here")
             pass
         try:
-            warning = self.session.page.locator("text=errorBefore you can proceed").first
-            warning.wait_for(timeout=2000)
+            print("Checking for warnings.")
+            warning = self.session.page.get_by_text("errorBefore you can proceed").first
+            warning.wait_for(timeout=5000)
             warning_header = warning.text_content()
+            print(warning_header)
             warning_header = warning_header.replace("error", "").split(":")[0].strip()
             warning_items_locator = self.session.page.get_by_role("main")
             warning_items = warning_items_locator.locator("li").all()
@@ -228,6 +227,7 @@ class Order:
                 if warning_text[warning_header][i - 1] != item.text_content():
                     warning_text[warning_header].append(item.text_content())
             order_messages["ORDER INVALID"] = warning_text
+            print(warning_text)
             return order_messages
         except PlaywrightTimeoutError:
             order_messages["ORDER INVALID"] = "No invalid order message found."

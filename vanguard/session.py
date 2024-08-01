@@ -6,7 +6,7 @@ from time import sleep
 
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
-from playwright_stealth import stealth_sync
+from playwright_stealth import StealthConfig, stealth_sync
 
 from .urls import landing_page, login_page
 
@@ -53,6 +53,11 @@ class VanguardSession:
         self.context = None
         self.page = None
         self.playwright = sync_playwright().start()
+        self.stealth_config = StealthConfig(
+            navigator_languages=False,
+            navigator_user_agent=False,
+            navigator_vendor=False,
+        )
         self.get_browser()
 
     def get_browser(self):
@@ -89,13 +94,12 @@ class VanguardSession:
             viewport={"width": 1920, "height": 1080},
             storage_state=self.profile_path if self.title is not None else None,
         )
-        self.page = self.context.new_page()
-        # testing without playwright-stealth for a bit
-        # stealth_sync(self.page)
         if self.debug:
             self.context.tracing.start(
                 name="vanguard_trace", screenshots=True, snapshots=True
-            )
+        )
+        self.page = self.context.new_page()
+        stealth_sync(self.page, self.stealth_config)
 
     def save_storage_state(self):
         """

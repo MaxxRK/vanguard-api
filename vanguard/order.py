@@ -2,7 +2,7 @@ import re
 from enum import Enum
 from time import sleep
 
-from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+from playwright.sync_api import expect, TimeoutError as PlaywrightTimeoutError
 
 from .session import VanguardSession
 from .urls import order_page
@@ -98,17 +98,14 @@ class Order:
         }
         self.session.go_url(order_page())
         try:
-            self.session.page.wait_for_selector(
-                "//div[text()=' Select Account ']", timeout=10000
-            ).click()
-            account_box = self.session.page.wait_for_selector(
-                ".c11n-modal-dialog-open",
-                timeout=10000,
-            )
-            account_selectors = account_box.query_selector_all("tds-list-option")
+            account_box = self.session.page.locator("#account-selector")
+            account_box.wait_for(timeout=10000)
+            account_box_interact = account_box.locator("..")
+            account_box_interact.click()
+            account_selectors = account_box.locator("option").all()
             for account in account_selectors:
                 if account_id in account.text_content():
-                    account.click()
+                    account_box.select_option(value=account.get_attribute("value"))
                     break
         except PlaywrightTimeoutError:
             pass
@@ -145,11 +142,11 @@ class Order:
         except PlaywrightTimeoutError:
             pass
         if order_type == "BUY":
-            buy_btn = self.session.page.wait_for_selector("xpath=//label[text()='Buy']")
+            buy_btn = self.session.page.wait_for_selector("xpath=//label/span[text()='Buy']")
             buy_btn.click()
         elif order_type == "SELL":
             sell_btn = self.session.page.wait_for_selector(
-                "xpath=//label[text()='Sell']"
+                "xpath=//label/span[text()='Sell']"
             )
             sell_btn.click()
         quantity_box = self.session.page.wait_for_selector(
@@ -157,30 +154,42 @@ class Order:
         )
         quantity_box.fill("")
         quantity_box.type(str(quantity))
-        if price_type == "MARKET":
-            self.session.page.wait_for_selector("//label[text()='Market']").click()
-        elif price_type == "LIMIT":
-            if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
-                order_messages["ORDER INVALID"] = (
-                    "Limit orders must be DAY or GOOD TILL CANCELLED."
-                )
-                return order_messages
-            self.session.page.wait_for_selector("//label[text()='Limit']").click()
-        elif price_type == "STOP":
-            if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
-                order_messages["ORDER INVALID"] = (
-                    "Stop orders must be DAY or GOOD TILL CANCELLED."
-                )
-                return order_messages
-            self.session.page.wait_for_selector("//label[text()='Stop']").click()
-        elif price_type == "STOP_LIMIT":
-            if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
-                order_messages["ORDER INVALID"] = (
-                    "Stop orders must be DAY or GOOD TILL CANCELLED."
-                )
-                return order_messages
-            self.session.page.wait_for_selector("//label[text()='Stop Limit']").click()
         try:
+            if price_type == "MARKET":
+                self.session.page.wait_for_selector(
+                    "//label/span[text()='Market']",
+                    timeout=3000,
+                ).click()
+            elif price_type == "LIMIT":
+                if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
+                    order_messages["ORDER INVALID"] = (
+                        "Limit orders must be DAY or GOOD TILL CANCELLED."
+                    )
+                    return order_messages
+                self.session.page.wait_for_selector(
+                    "//label/span[text()='Limit']",
+                    timeout=3000
+                ).click()
+            elif price_type == "STOP":
+                if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
+                    order_messages["ORDER INVALID"] = (
+                        "Stop orders must be DAY or GOOD TILL CANCELLED."
+                    )
+                    return order_messages
+                self.session.page.wait_for_selector(
+                    "//label/span[text()='Stop']",
+                    timeout=3000
+                ).click()
+            elif price_type == "STOP_LIMIT":
+                if duration not in ["DAY", "GOOD_TILL_CANCELLED"]:
+                    order_messages["ORDER INVALID"] = (
+                        "Stop orders must be DAY or GOOD TILL CANCELLED."
+                    )
+                    return order_messages
+                self.session.page.wait_for_selector(
+                    "//label/span[text()='Stop Limit']",
+                    timeout=3000
+                ).click()
             if price_type in ["LIMIT", "STOP_LIMIT"]:
                 self.session.page.fill("#limitPrice", str(limit_price))
             if price_type in ["STOP", "STOP_LIMIT"]:
@@ -189,16 +198,16 @@ class Order:
             pass
         try:
             if duration == "DAY":
-                self.session.page.click("xpath=//label[text()='Day']")
+                self.session.page.click("xpath=//label/span[text()='Day']")
             elif duration == "GOOD_TILL_CANCELLED":
-                self.session.page.click("xpath=//label[text()='60-day (GTC)']")
+                self.session.page.click("xpath=//label/span[text()='60-day (GTC)']")
             if order_type == "SELL":
                 self.session.page.wait_for_selector(
                     "twe-cost-basis-modal tds-checkbox .tds-checkbox__indicator.tds-checkbox--blue",
                     timeout=3000,
                 ).click()
                 self.session.page.wait_for_selector(
-                    "//button[contains(text(), ' Continue ')]",
+                    "//button[contains(text(), 'Continue')]",
                     timeout=10000,
                 ).click()
                 self.session.page.wait_for_selector(
@@ -208,37 +217,36 @@ class Order:
         except PlaywrightTimeoutError:
             pass
         try:
-            self.session.page.wait_for_selector(
-                "body > twe-root > vg-vgn-nav > div > main > twe-trade > form > div > div.row > div.col-lg-6.col-xxl-4.tds-mb-9.d-none.d-xxl-block > twe-trade-detail > tds-card > div > tds-card-body > div.twe-flex-button-wrap > button:nth-child(2)",
-                timeout=5000,
-            ).click()
-        except PlaywrightTimeoutError:
-            pass
-        if after_hours:
-            try:
-                sleep(2)
-                self.session.page.wait_for_selector(
-                    "//button[text()='Continue']",
-                    timeout=5000,
-                ).click()
-            except PlaywrightTimeoutError:
-                pass
-
-        try:
-            warning = self.session.page.wait_for_selector(
-                "div.col-lg-6:nth-child(3) > twe-trade-detail:nth-child(2) > tds-card:nth-child(1) > div:nth-child(1) > tds-card-body:nth-child(1) > div:nth-child(3)",
-                timeout=5000,
-            )
-            warning_header_selector = warning.query_selector("p")
-            warning_header = warning_header_selector.text_content()
-            warning_items = warning.query_selector_all("li")
+            warning = self.session.page.get_by_text("errorBefore you can proceed").first
+            warning_header = warning.text_content()
+            warning_header = warning_header.replace("error", "").split(":")[0].strip()
+            warning_items_locator = self.session.page.get_by_role("main")
+            warning_items = warning_items_locator.locator("li").all()
             warning_text = {warning_header: []}
-            for item in warning_items:
-                warning_text[warning_header].append(item.text_content())
+            for i,item in enumerate(warning_items):
+                if i == 0:
+                   warning_text[warning_header].append(item.text_content()) 
+                if warning_text[warning_header][i-1] != item.text_content():
+                    warning_text[warning_header].append(item.text_content())
             order_messages["ORDER INVALID"] = warning_text
             return order_messages
         except PlaywrightTimeoutError:
             order_messages["ORDER INVALID"] = "No invalid order message found."
+        try:
+            preview = self.session.page.get_by_role("button", name="Preview Order")
+            expect(preview).to_be_visible(timeout=10000)
+            preview.click()
+        except (AssertionError, PlaywrightTimeoutError):
+            pass
+        if after_hours:
+            try:
+                after_button = self.session.page.get_by_role(
+                    "button", name="Continue"
+                )
+                expect(after_button).to_be_visible(timeout=3000)
+                after_button.click()
+            except (AssertionError, PlaywrightTimeoutError):
+                pass
 
         try:
             order_preview = self.session.page.wait_for_selector(
@@ -265,23 +273,21 @@ class Order:
             if dry_run:
                 return order_messages
             try:
-                self.session.page.click(
-                    "//button[text()=' Submit Order ']", timeout=10000
+                submit_button = self.session.page.get_by_role(
+                    "button", name="Submit Order"
                 )
-            except PlaywrightTimeoutError:
+                expect(submit_button).to_be_visible(timeout=5000)
+                submit_button.click()
+            except (AssertionError, PlaywrightTimeoutError):
                 raise Exception("No place order button found cannot continue.")
         except PlaywrightTimeoutError:
             order_messages["ORDER PREVIEW"] = "No order preview page found."
 
         try:
-            order_handle_one = self.session.page.wait_for_selector(
-                "body > twe-root > vg-vgn-nav > div > main > twe-confirm > div > div > div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 > h2",
-                timeout=5000,
-            )
-            order_handle_two = self.session.page.wait_for_selector(
-                "body > twe-root > vg-vgn-nav > div > main > twe-confirm > div > div > div.col-lg-7.order-first.order-lg-last.tds-mb-4.tds-mb-m-9 > div.page-heading.tds-mb-7 > p",
-                timeout=5000,
-            )
+            order_handle_one = self.session.page.locator(".order-confirm")
+            order_handle_one.wait_for(timeout=5000)
+            order_handle_two = self.session.page.locator(".page-heading")
+            order_handle_two.wait_for(timeout=5000)
             order_number_text = order_handle_one.text_content()
             order_match = re.search(r"Received order #(\d+)", order_number_text)
             if order_match:

@@ -16,4 +16,5 @@ def holdings_page():
 
 
 def order_page():
-    return "https://personal1.vanguard.com/twe-trade-web-equity-etf/trade/ticket"
+    return "https://etfs-stocks.web.vanguard.com/c/trade/ticket"
+

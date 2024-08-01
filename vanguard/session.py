@@ -97,7 +97,7 @@ class VanguardSession:
         if self.debug:
             self.context.tracing.start(
                 name="vanguard_trace", screenshots=True, snapshots=True
-        )
+            )
         self.page = self.context.new_page()
         stealth_sync(self.page, self.stealth_config)
 

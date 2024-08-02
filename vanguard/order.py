@@ -202,11 +202,17 @@ class Order:
             elif duration == "GOOD_TILL_CANCELLED":
                 self.session.page.click("xpath=//label/span[text()='60-day (GTC)']")
             if order_type == "SELL":
-                cost_basis = self.session.page.locator("text=Choose a cost basis method").nth(0)
+                cost_basis = self.session.page.locator(
+                    "text=Choose a cost basis method"
+                ).nth(0)
                 cost_basis.wait_for(timeout=5000)
-                check_box = self.session.page.locator("text=Set as the preferred cost basis method for this holding.").nth(0)
+                check_box = self.session.page.locator(
+                    "text=Set as the preferred cost basis method for this holding."
+                ).nth(0)
                 check_box.locator("..").click()
-                continue_button = self.session.page.get_by_role("button", name="Continue")
+                continue_button = self.session.page.get_by_role(
+                    "button", name="Continue"
+                )
                 expect(continue_button).to_be_visible(timeout=3000)
                 continue_button.click()
         except (PlaywrightTimeoutError, AssertionError):
@@ -214,7 +220,7 @@ class Order:
         try:
             self.session.page.wait_for_selector(
                 "div.col-lg-6:nth-child(3) > twe-trade-detail:nth-child(2) > tds-card:nth-child(1) > div:nth-child(1) > tds-card-body:nth-child(1) > div:nth-child(3) > div:nth-child(1)",
-                timeout=5000
+                timeout=5000,
             )
             warning = self.session.page.get_by_text("errorBefore you can proceed").first
             warning_header = warning.text_content()

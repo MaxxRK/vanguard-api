@@ -212,11 +212,12 @@ class Order:
         except (PlaywrightTimeoutError, AssertionError):
             pass
         try:
-            print("Checking for warnings.")
+            self.session.page.wait_for_selector(
+                "div.col-lg-6:nth-child(3) > twe-trade-detail:nth-child(2) > tds-card:nth-child(1) > div:nth-child(1) > tds-card-body:nth-child(1) > div:nth-child(3) > div:nth-child(1)",
+                timeout=5000
+            )
             warning = self.session.page.get_by_text("errorBefore you can proceed").first
-            warning.wait_for(timeout=5000)
             warning_header = warning.text_content()
-            print(warning_header)
             warning_header = warning_header.replace("error", "").split(":")[0].strip()
             warning_items_locator = self.session.page.get_by_role("main")
             warning_items = warning_items_locator.locator("li").all()
@@ -227,7 +228,6 @@ class Order:
                 if warning_text[warning_header][i - 1] != item.text_content():
                     warning_text[warning_header].append(item.text_content())
             order_messages["ORDER INVALID"] = warning_text
-            print(warning_text)
             return order_messages
         except PlaywrightTimeoutError:
             order_messages["ORDER INVALID"] = "No invalid order message found."

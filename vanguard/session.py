@@ -200,11 +200,9 @@ class VanguardSession:
             try:
                 self.go_url(login_page())
             except PlaywrightTimeoutError:
-                self.close_browser()
                 raise Exception("Failed to load login page.")
             login_state = self.find_login_state()
             if login_state == 0:
-                self.close_browser()
                 raise Exception("Failed to find login state")
             elif login_state == 1:
                 return False

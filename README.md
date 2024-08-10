@@ -11,7 +11,7 @@
 I am new to coding and new to open-source. I would love any help and suggestions!
 
 ## Disclaimer
-I am not a financial advisor and not affiliated with Firstrade in any way. Use this tool at your own risk. I am not responsible for any losses or damages you may incur by using this project. This tool is provided as-is with no warranty.
+I am not a financial advisor and not affiliated with Vanguard in any way. Use this tool at your own risk. I am not responsible for any losses or damages you may incur by using this project. This tool is provided as-is with no warranty.
 
 ## Setup
 Install using pypi:

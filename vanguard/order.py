@@ -116,10 +116,7 @@ class Order:
         quote_box.click()
         quote_box.fill("")
         quote_box.fill(symbol)
-        self.session.page.press(
-            "//input[@placeholder='Get Quote']",
-            "Enter",
-        )
+        self.session.page.keyboard.press("Tab")
         for _ in range(3):
             quote_price = self.session.page.wait_for_selector(
                 "(//div[@data-testid='txt-quote-value'])[2]", timeout=10000
@@ -340,10 +337,7 @@ class Order:
         quote_box.click()
         quote_box.fill("")
         quote_box.fill(symbol)
-        self.session.page.press(
-            "//input[@placeholder='Get Quote']",
-            "Enter",
-        )
+        self.session.page.keyboard.press("Tab")
         for _ in range(3):
             quote_price = self.session.page.wait_for_selector(
                 "(//div[@data-testid='txt-quote-value'])[2]", timeout=10000

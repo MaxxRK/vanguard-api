@@ -103,6 +103,7 @@ class Order:
             account_box.wait_for(timeout=10000)
             account_box_interact = account_box.locator("..")
             account_box_interact.click()
+            sleep(0.5)
             account_selectors = account_box.locator("option").all()
             for account in account_selectors:
                 if account_id in account.text_content():
@@ -117,11 +118,11 @@ class Order:
         quote_box.fill("")
         quote_box.fill(symbol)
         self.session.page.keyboard.press("Tab")
-        for _ in range(3):
+        for _ in range(6):
             quote_price = self.session.page.wait_for_selector(
                 "(//div[@data-testid='txt-quote-value'])[2]", timeout=10000
             ).text_content()
-            sleep(1)
+            sleep(0.5)
             if quote_price != "$—":
                 break
         if quote_price != "$—":

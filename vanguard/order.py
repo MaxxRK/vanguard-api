@@ -216,9 +216,7 @@ class Order:
         except (PlaywrightTimeoutError, AssertionError):
             pass
         try:
-            continue_button = self.session.page.get_by_role(
-                "button", name="Continue"
-            )
+            continue_button = self.session.page.get_by_role("button", name="Continue")
             expect(continue_button).to_be_visible(timeout=3000)
             continue_button.click()
         except (AssertionError, PlaywrightTimeoutError):

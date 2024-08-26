@@ -100,10 +100,9 @@ class Order:
         self.session.go_url(order_page())
         try:
             account_box = self.session.page.locator("#account-selector")
-            account_box.wait_for(timeout=10000)
+            account_box.wait_for(timeout=30000)
             account_box_interact = account_box.locator("..")
             account_box_interact.click()
-            sleep(0.5)
             account_selectors = account_box.locator("option").all()
             for account in account_selectors:
                 if account_id in account.text_content():
@@ -118,11 +117,11 @@ class Order:
         quote_box.fill("")
         quote_box.fill(symbol)
         self.session.page.keyboard.press("Tab")
-        for _ in range(6):
+        for _ in range(12):
             quote_price = self.session.page.wait_for_selector(
                 "(//div[@data-testid='txt-quote-value'])[2]", timeout=10000
             ).text_content()
-            sleep(0.5)
+            sleep(0.25)
             if quote_price != "$—":
                 break
         if quote_price != "$—":
@@ -200,6 +199,12 @@ class Order:
             elif duration == "GOOD_TILL_CANCELLED":
                 self.session.page.click("xpath=//label/span[text()='60-day (GTC)']")
             if order_type == "SELL":
+                try:
+                    ok_button = self.session.page.get_by_role("button", name="Ok")
+                    expect(ok_button).to_be_visible(timeout=5000)
+                    ok_button.click()
+                except (AssertionError, PlaywrightTimeoutError):
+                    pass
                 cost_basis = self.session.page.locator(
                     "text=Choose a cost basis method"
                 ).nth(0)
@@ -208,12 +213,15 @@ class Order:
                     "text=Set as the preferred cost basis method for this holding."
                 ).nth(0)
                 check_box.locator("..").click()
+        except (PlaywrightTimeoutError, AssertionError):
+            pass
+        try:
                 continue_button = self.session.page.get_by_role(
                     "button", name="Continue"
                 )
                 expect(continue_button).to_be_visible(timeout=3000)
                 continue_button.click()
-        except (PlaywrightTimeoutError, AssertionError):
+        except (AssertionError, PlaywrightTimeoutError):
             pass
         try:
             self.session.page.wait_for_selector(

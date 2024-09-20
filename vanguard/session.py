@@ -54,9 +54,9 @@ class VanguardSession:
         self.page = None
         self.playwright = sync_playwright().start()
         self.stealth_config = StealthConfig(
-            navigator_languages=False,
-            navigator_user_agent=False,
-            navigator_vendor=False,
+            navigator_languages=True,
+            navigator_user_agent=True,
+            navigator_vendor=True,
         )
         self.get_browser()
 

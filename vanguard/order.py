@@ -257,7 +257,7 @@ class Order:
 
         try:
             order_preview = self.session.page.wait_for_selector(
-                ".col-lg-7 > tds-card:nth-child(1) > div:nth-child(1) > tds-card-body:nth-child(1)",
+                ".col-lg-7 > div:nth-child(1) > twe-order-details:nth-child(2)",
                 timeout=5000,
             )
             order_preview_text = order_preview.text_content()

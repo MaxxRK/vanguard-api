@@ -291,26 +291,26 @@ class Order:
             order_messages["ORDER PREVIEW"] = "No order preview page found."
 
         try:
-            order_handle_one = self.session.page.locator(".order-confirm")
+            order_handle_one = self.session.page.get_by_text("Order #")
             order_handle_one.wait_for(timeout=5000)
-            order_handle_two = self.session.page.locator(".page-heading")
+            order_handle_two = self.session.page.get_by_text("Submitted on")
             order_handle_two.wait_for(timeout=5000)
             order_number_text = order_handle_one.text_content()
-            order_match = re.search(r"Received order #(\d+)", order_number_text)
+            order_match = re.search(r"Order #(\d+)", order_number_text)
             if order_match:
                 order_number = order_match.group(1)
             else:
                 order_number = "No order number found."
             order_date_text = order_handle_two.text_content()
+            print(f"{order_date_text}")
             date_match = re.search(
-                r"Submitted on (\d{2}/\d{2}/\d{4}) at (\d{1,2}:\d{2} [AP]\.M\. ET)",
+                r"Submitted on (\d{1,2}:\d{2} [ap]\.m\., ET [A-Za-z]+ \d{1,2}, \d{4})",
                 order_date_text,
             )
             if date_match:
                 date_str = date_match.group(1)
-                time_str = date_match.group(2).replace(".", "")
-                order_date = date_str
-                order_time = time_str
+                order_date = date_str.split(", ET")[1].strip()
+                order_time = date_str.split(", ET")[0].replace(".", "")
             else:
                 order_date = "No order date found."
                 order_time = "No order time found."

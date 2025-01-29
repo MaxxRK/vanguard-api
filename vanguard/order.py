@@ -289,12 +289,22 @@ class Order:
                 raise Exception("No place order button found cannot continue.")
         except PlaywrightTimeoutError:
             order_messages["ORDER PREVIEW"] = "No order preview page found."
-
+        try:
+            survey_overlay = self.session.page.get_by_text("Help us improve")
+            survey_overlay.wait_for(timeout=3000)
+            survey_clear = self.session.page.get_by_text("Close")
+            survey_clear.click()
+        except PlaywrightTimeoutError:
+            pass
         try:
             order_handle_one = self.session.page.get_by_text("Order #")
             order_handle_one.wait_for(timeout=5000)
-            order_handle_two = self.session.page.get_by_text("Submitted on")
-            order_handle_two.wait_for(timeout=5000)
+            try:
+                order_handle_two = self.session.page.get_by_text("Submitted at")
+                order_handle_two.wait_for(timeout=5000)
+            except PlaywrightTimeoutError:
+                order_handle_two = self.session.page.get_by_text("Submitted on")
+                order_handle_two.wait_for(timeout=5000)       
             order_number_text = order_handle_one.text_content()
             order_match = re.search(r"Order #(\d+)", order_number_text)
             if order_match:
@@ -304,13 +314,14 @@ class Order:
             order_date_text = order_handle_two.text_content()
             print(f"{order_date_text}")
             date_match = re.search(
-                r"Submitted on (\d{1,2}:\d{2} [ap]\.m\., ET [A-Za-z]+ \d{1,2}, \d{4})",
+                r"Submitted (at|on) (\d{1,2}:\d{2} [ap]\.m\., ET [A-Za-z]+ \d{1,2}, \d{4})",
                 order_date_text,
             )
             if date_match:
-                date_str = date_match.group(1)
-                order_date = date_str.split(", ET")[1].strip()
-                order_time = date_str.split(", ET")[0].replace(".", "")
+                date_str = date_match.group(2)
+                date_parts = date_str.split(", ET")
+                order_date = date_parts[1].strip() if len(date_parts) > 1 else "No order date found."
+                order_time = date_parts[0].replace(".", "") if len(date_parts) > 1 else "No order time found."
             else:
                 order_date = "No order date found."
                 order_time = "No order time found."

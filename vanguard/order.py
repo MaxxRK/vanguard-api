@@ -304,7 +304,7 @@ class Order:
                 order_handle_two.wait_for(timeout=5000)
             except PlaywrightTimeoutError:
                 order_handle_two = self.session.page.get_by_text("Submitted on")
-                order_handle_two.wait_for(timeout=5000)       
+                order_handle_two.wait_for(timeout=5000)
             order_number_text = order_handle_one.text_content()
             order_match = re.search(r"Order #(\d+)", order_number_text)
             if order_match:
@@ -320,8 +320,16 @@ class Order:
             if date_match:
                 date_str = date_match.group(2)
                 date_parts = date_str.split(", ET")
-                order_date = date_parts[1].strip() if len(date_parts) > 1 else "No order date found."
-                order_time = date_parts[0].replace(".", "") if len(date_parts) > 1 else "No order time found."
+                order_date = (
+                    date_parts[1].strip()
+                    if len(date_parts) > 1
+                    else "No order date found."
+                )
+                order_time = (
+                    date_parts[0].replace(".", "")
+                    if len(date_parts) > 1
+                    else "No order time found."
+                )
             else:
                 order_date = "No order date found."
                 order_time = "No order time found."

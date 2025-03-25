@@ -254,41 +254,17 @@ class Order:
                 after_button.click()
             except (AssertionError, PlaywrightTimeoutError):
                 pass
-
         try:
-            order_preview = self.session.page.wait_for_selector(
-                ".col-lg-7 > div:nth-child(1) > twe-order-details:nth-child(2)",
-                timeout=5000,
+            submit_button = self.session.page.get_by_role(
+                "button", name="Submit order"
             )
-            order_preview_text = order_preview.text_content()
-            preview_parts = re.split(
-                r"(Account|Transaction|Shares|Security|Order type|Duration|Commission|Estimated amount|\*)",
-                order_preview_text,
-            )
-            order_preview = {
-                "Account": preview_parts[2],
-                "Transaction": preview_parts[4],
-                "Shares": preview_parts[6],
-                "Security": preview_parts[8],
-                "Order type": preview_parts[10],
-                "Duration": preview_parts[12],
-                "Commission": preview_parts[14],
-                "Estimated amount": preview_parts[18],
-                "Note": preview_parts[20],
-            }
-            order_messages["ORDER PREVIEW"] = order_preview
+            expect(submit_button).to_be_visible(timeout=5000)
+            order_messages["ORDER PREVIEW"] = "Order preview loaded correctly."
             if dry_run:
                 return order_messages
-            try:
-                submit_button = self.session.page.get_by_role(
-                    "button", name="Submit Order"
-                )
-                expect(submit_button).to_be_visible(timeout=5000)
-                submit_button.click()
-            except (AssertionError, PlaywrightTimeoutError):
-                raise Exception("No place order button found cannot continue.")
-        except PlaywrightTimeoutError:
-            order_messages["ORDER PREVIEW"] = "No order preview page found."
+            submit_button.click()
+        except (AssertionError, PlaywrightTimeoutError):
+            raise Exception("No place order button found cannot continue.")
         try:
             survey_overlay = self.session.page.get_by_text("Help us improve")
             survey_overlay.wait_for(timeout=3000)

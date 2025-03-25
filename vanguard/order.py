@@ -255,9 +255,7 @@ class Order:
             except (AssertionError, PlaywrightTimeoutError):
                 pass
         try:
-            submit_button = self.session.page.get_by_role(
-                "button", name="Submit order"
-            )
+            submit_button = self.session.page.get_by_role("button", name="Submit order")
             expect(submit_button).to_be_visible(timeout=5000)
             order_messages["ORDER PREVIEW"] = "Order preview loaded correctly."
             if dry_run:

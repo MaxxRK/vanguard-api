@@ -87,7 +87,7 @@ class AllAccount:
             elif i >= 2:
                 stock_names = row.query_selector_all("th")
                 for info in stock_names:
-                    parts = info.inner_text().strip().split('\n')
+                    parts = info.inner_text().strip().split("\n")
                     if len(parts) == 2:
                         symbol, description = parts
                         stock_symbols.append(symbol.strip())

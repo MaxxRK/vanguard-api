@@ -86,12 +86,15 @@ class AllAccount:
                         self.accounts_positions[account_id][type] = []
             elif i >= 2:
                 stock_names = row.query_selector_all("th")
-                for j, info in enumerate(stock_names):
-                    description = info.inner_text().strip()
-                    if j == 1:
-                        stock_symbols.append(description.strip())
-                    if j == 2:
+                for info in stock_names:
+                    parts = info.inner_text().strip().split('\n')
+                    if len(parts) == 2:
+                        symbol, description = parts
+                        stock_symbols.append(symbol.strip())
                         stock_descriptions.append(description.strip())
+                    else:
+                        stock_symbols.append("Not Found")
+                        stock_descriptions.append("Not Found")
                 stock_price_elements = row.query_selector_all("td")
                 for k, price in enumerate(stock_price_elements):
                     if k == 0:
@@ -156,8 +159,11 @@ class AllAccount:
             for _ in range(1):
                 try:
                     self.session.go_url(holdings_page())
-                    self.session.page.wait_for_selector(
-                        '//span[contains(text(), "Expand all accounts")]', timeout=60000
+                    self.session.page.locator(
+                        'div.accounts-interact-text:nth-child(1) >> button:has-text("Expand accounts")'
+                    ).wait_for(state="visible", timeout=120000)
+                    self.session.page.locator(
+                        'div.accounts-interact-text:nth-child(1) >> button:has-text("Expand accounts")'
                     ).click()
                     self.session.page.wait_for_selector("#overflow-override")
                     all_selectors = self.session.page.query_selector_all(
@@ -197,11 +203,14 @@ class AllAccount:
         try:
             self.session.go_url(holdings_page())
             self.as_of_time = datetime.strftime(datetime.now(), "%Y-%m-%dT%H:%M:%S.%fZ")
-            self.session.page.wait_for_selector(
-                '//span[contains(text(), "Expand all accounts")]', timeout=120000
+            self.session.page.locator(
+                'div.accounts-interact-text:nth-child(1) >> button:has-text("Expand accounts")'
+            ).wait_for(state="visible", timeout=120000)
+            self.session.page.locator(
+                'div.accounts-interact-text:nth-child(1) >> button:has-text("Expand accounts")'
             ).click()
             total_element = self.session.page.wait_for_selector(
-                '//p[@class="c11n-text-xl-headline accordion-headline"]'
+                '//span[@class="headers-container__label"]/following-sibling::span[1]'
             )
             self.total_value = float(
                 total_element.inner_text().split()[-1].replace(",", "").replace("$", "")

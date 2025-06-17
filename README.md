@@ -24,6 +24,12 @@ playwright install
 ```
 If you would like some more information on this, you can find it [here](https://playwright.dev/python/docs/intro).
 
+You will also need to install the 'requirements.txt' file in this repository. You can do this by running the command:
+```
+pip install -r requirements.txt
+```
+This installs a custom version of playwright_stealth that will work with this library.
+
 ## Quickstart
 Checkout `test.py` for a quickstart example it will: 
 - Login and print account info.

@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setuptools.setup(
     name="vanguard-api",
-    version="0.3.1",
+    version="0.3.2",
     author="MaxxRK",
     author_email="maxxrk@pm.me",
     description="An unofficial API for Vanguard Invest",
@@ -15,7 +15,7 @@ setuptools.setup(
     url="https://github.com/MaxxRK/vanguard-api",
     download_url="https://github.com/MaxxRK/vanguard-api/archive/refs/tags/v0.3.1.tar.gz",
     keywords=["VANGUARD", "API"],
-    install_requires=["playwright", "playwright-stealth"],
+    install_requires=["playwright", "playwright-sm"],
     packages=["vanguard"],
     classifiers=[
         "Development Status :: 3 - Alpha",

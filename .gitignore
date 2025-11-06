@@ -3,6 +3,7 @@ build/
 dist/
 vanguard_api.egg-info/
 
+*.venv
 *.json
 _*.py
 *.txt
